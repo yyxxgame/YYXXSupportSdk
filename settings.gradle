@@ -1,0 +1,3 @@
+include ':demo'
+include ':library_support'
+rootProject.name = 'YYXXSupportSdk'
