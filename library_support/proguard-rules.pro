@@ -114,7 +114,10 @@
 -keep class android.support.annotation.GuardedBy{*;}
 -keep class cn.yyxx.support.AppUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.BeanUtils{ public <fields>;public <methods>;}
+-keep class cn.yyxx.support.device.DeviceInfoUtils{ public <fields>;public <methods>;}
+-keep class cn.yyxx.support.FileUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.HostModelUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.ResUtils{ public <fields>;public <methods>;}
+-keep class cn.yyxx.support.msa.**{ public <fields>; public <methods>;}
 -keep class cn.yyxx.support.hawkeye.**{ public <fields>; public <methods>;}
 -keep class cn.yyxx.support.volley.**{  public <fields>; public <methods>;}
