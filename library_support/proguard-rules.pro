@@ -111,13 +111,20 @@
 
 -keep class **JNI* {*;}
 
--keep class android.support.annotation.GuardedBy{*;}
+-keep class android.support.annotation.**{*;}
+-keep class cn.yyxx.support.AndroidBug5497Workaround{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.AppUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.BeanUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.device.DeviceInfoUtils{ public <fields>;public <methods>;}
+-keep class cn.yyxx.support.DensityUtils{ public <fields>;public <methods>;}
+-keep class cn.yyxx.support.JsonUtils{ public <fields>;public <methods>;}
+-keep class cn.yyxx.support.ui.**{ public <fields>; public <methods>;}
+-keep class cn.yyxx.support.encryption.**{ public <fields>; public <methods>;}
 -keep class cn.yyxx.support.FileUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.HostModelUtils{ public <fields>;public <methods>;}
+-keep class cn.yyxx.support.PropertiesUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.ResUtils{ public <fields>;public <methods>;}
+-keep class cn.yyxx.support.scheduler.**{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.msa.**{ public <fields>; public <methods>;}
 -keep class cn.yyxx.support.hawkeye.**{ public <fields>; public <methods>;}
--keep class cn.yyxx.support.volley.**{  public <fields>; public <methods>;}
+-keep class cn.yyxx.support.volley.**{ *;}

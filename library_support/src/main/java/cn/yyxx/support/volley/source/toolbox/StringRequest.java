@@ -80,7 +80,7 @@ public class StringRequest extends Request<String> {
 
     @Override
     protected void deliverResponse(String response) {
-        Response.Listener<String> listener;
+        Listener<String> listener;
         synchronized (mLock) {
             listener = mListener;
         }

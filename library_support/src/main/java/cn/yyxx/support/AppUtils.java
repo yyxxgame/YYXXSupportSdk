@@ -1,9 +1,14 @@
 package cn.yyxx.support;
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.text.TextUtils;
+import android.widget.TextView;
+
+import java.util.List;
 
 /**
  * @author #Suyghur.
@@ -79,18 +84,32 @@ public class AppUtils {
         return "1";
     }
 
+    public static String getProcessName(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningApps = am.getRunningAppProcesses();
+        if (runningApps == null) {
+            return "";
+        }
+        for (ActivityManager.RunningAppProcessInfo proInfo : runningApps) {
+            if (proInfo.pid == android.os.Process.myPid()) {
+                if (proInfo.processName != null) {
+                    return proInfo.processName;
+                }
+            }
+        }
+        return "";
+    }
+
     /**
      * 判断是否已安装
      */
     public static boolean isPackageInstalled(Context context, String pkgName) {
+        if (TextUtils.isEmpty(pkgName)) {
+            return false;
+        }
         try {
-            if (TextUtils.isEmpty(pkgName)) {
-                return false;
-            } else {
-                context.getPackageManager().getPackageInfo(pkgName.trim(), PackageManager.GET_GIDS);
-            }
+            context.getPackageManager().getPackageInfo(pkgName, PackageManager.GET_GIDS);
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
         return true;

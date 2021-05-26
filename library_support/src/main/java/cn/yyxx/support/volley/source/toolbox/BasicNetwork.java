@@ -260,7 +260,7 @@ public class BasicNetwork implements Network {
         request.addMarker(String.format("%s-retry [timeout=%s]", logPrefix, oldTimeout));
     }
 
-    private Map<String, String> getCacheHeaders(Cache.Entry entry) {
+    private Map<String, String> getCacheHeaders(Entry entry) {
         // If there's no cache entry, we're done.
         if (entry == null) {
             return Collections.emptyMap();

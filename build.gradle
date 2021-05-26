@@ -14,7 +14,7 @@ buildscript {
     // minSdkVersion
     ext.MIN_SDK_VERSION = 16
     // targetSdkVersion
-    ext.TARGET_SDK_VERSION = 30
+    ext.TARGET_SDK_VERSION = 28
 
     repositories {
         google()

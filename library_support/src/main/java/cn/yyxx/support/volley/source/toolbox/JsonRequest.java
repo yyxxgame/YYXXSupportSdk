@@ -84,7 +84,7 @@ public abstract class JsonRequest<T> extends Request<T> {
 
     @Override
     protected void deliverResponse(T response) {
-        Response.Listener<T> listener;
+        Listener<T> listener;
         synchronized (mLock) {
             listener = mListener;
         }

@@ -18,7 +18,7 @@ import cn.yyxx.support.hawkeye.LogUtils;
  */
 public class MsaDeviceIdsHandler {
 
-    private static final String VERSION = "1.0.23";
+    private static final String VERSION = "1.0.25";
 
     public static String oaid = "";
     public static String vaid = "";

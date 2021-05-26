@@ -3,6 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.yyxx.support.demo">
 
+    <!-- 网络权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+
     <!-- msa sdk -->
     <uses-sdk tools:overrideLibrary="com.zui.opendeviceidlibrary" />
     <!-- asus -->
@@ -10,6 +16,12 @@
     <!-- freeme -->
     <uses-permission android:name="freemme.permission.msa" />
     <!-- msa sdk -->
+
+    <!-- 适配Android 11 上软件包可见性被屏蔽导致无法跳转第三方应用 -->
+    <queries>
+        <package android:name="com.tencent.mm" />
+        <package android:name="com.tencent.mobileqq" />
+    </queries>
 
     <application
         android:name=".DemoApplication"
@@ -29,6 +41,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service
+            android:name=".FloatViewService"
+            android:exported="true" />
     </application>
 
 </manifest>

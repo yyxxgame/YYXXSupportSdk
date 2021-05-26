@@ -152,7 +152,7 @@ public class HurlStack extends BaseHttpStack {
      * @see <a href="https://tools.ietf.org/html/rfc7230#section-3.3">RFC 7230 section 3.3</a>
      */
     private static boolean hasResponseBody(int requestMethod, int responseCode) {
-        return requestMethod != Request.Method.HEAD
+        return requestMethod != Method.HEAD
                 && !(HTTP_CONTINUE <= responseCode && responseCode < HttpURLConnection.HTTP_OK)
                 && responseCode != HttpURLConnection.HTTP_NO_CONTENT
                 && responseCode != HttpURLConnection.HTTP_NOT_MODIFIED;

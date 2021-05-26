@@ -73,5 +73,6 @@ android {
 
 dependencies {
     implementation project(':library_support')
-    implementation files('libs/oaid_sdk_1.0.23.jar')
+    implementation files('../libs/oaid_sdk_1.0.25.jar')
+    implementation files('../libs/mmkv-static-1.2.8.jar')
 }

@@ -3,22 +3,32 @@ package cn.yyxx.support.device;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.BatteryManager;
 import android.os.Build;
+import android.provider.Settings.Secure;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.lang.reflect.Method;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
 import cn.yyxx.support.FileUtils;
+import cn.yyxx.support.emulator.EmulatorFiles;
+import cn.yyxx.support.emulator.newfunc.EmulatorCheck;
 import cn.yyxx.support.hawkeye.LogUtils;
 
 /**
@@ -134,6 +144,18 @@ public class DeviceInfoUtils {
         return getTelephoneInfo(context, SIM);
     }
 
+
+    /**
+     * 判断是否包含SIM卡
+     *
+     * @return 状态
+     */
+    public static boolean hasSimCard(Context context) {
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        int simState = telephonyManager.getSimState();
+        return simState != TelephonyManager.SIM_STATE_ABSENT && simState != TelephonyManager.SIM_STATE_UNKNOWN;
+    }
+
     /**
      * 获取手机序列号
      */
@@ -157,7 +179,7 @@ public class DeviceInfoUtils {
         if (context == null) {
             return androidId;
         }
-        androidId = android.provider.Settings.Secure.getString(context.getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+        androidId = Secure.getString(context.getContentResolver(), Secure.ANDROID_ID);
         return androidId;
     }
 
@@ -218,6 +240,14 @@ public class DeviceInfoUtils {
         //mi.availMem
         return String.valueOf(mi.availMem / 1024 / 1024);
     }
+
+    /**
+     * 获取系统版本
+     */
+    public static String getDeviceSoftwareVersion() {
+        return Build.VERSION.RELEASE;
+    }
+
 
     /**
      * 获得手机MAC
@@ -337,4 +367,230 @@ public class DeviceInfoUtils {
         }
         return buf.toString();
     }
+
+    /**
+     * 判断网络是否可用
+     *
+     * @param context 上下文
+     */
+    @SuppressLint("MissingPermission")
+    public static boolean isAvailable(Context context) {
+        if (context == null) {
+            return false;
+        }
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return info != null && info.isAvailable();
+    }
+
+    /**
+     * 判断网络是否已连接或正在连接
+     *
+     * @param context 上下文
+     */
+    @SuppressLint("MissingPermission")
+    public static boolean isNetworkConnected(Context context) {
+        if (context == null) {
+            return false;
+        }
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = cm.getActiveNetworkInfo();
+        return info != null && info.isConnectedOrConnecting();
+    }
+
+    /**
+     * 获取运营商CODE
+     *
+     * @param context
+     * @return
+     */
+    public static String getSimOperatorCode(Context context) {
+        return getTelephoneInfo(context, SIM_OPERATOR);
+    }
+
+    /**
+     * 获取运营商名称
+     *
+     * @param context
+     * @return
+     */
+    public static String getSimOperatorName(Context context) {
+        return getTelephoneInfo(context, SIM_OPERATOR_NAME);
+    }
+
+    /**
+     * 获取运营商
+     * 1、移动；2、联通；3、电信；4、其他
+     *
+     * @param context
+     * @return
+     */
+    public static String getSimOperator(Context context) {
+        String code = getSimOperatorCode(context);
+        if (code.length() > 0) {
+            if (code.equals("46000") || code.equals("46002")
+                    || code.equals("46007")) {
+                // 中国移动
+                //LogUtils.d("中国移动");
+                return "1";
+            } else if (code.equals("46001") || code.equals("46006")) {
+                // 中国联通
+                //LogUtils.d("中国联通");
+                return "2";
+            } else if (code.equals("46003") || code.equals("46005")) {
+                // 中国电信
+                //LogUtils.d("中国电信");
+                return "3";
+            } else {
+                //LogUtils.d("无或其他");
+                return "4";
+            }
+        }
+        return "4";
+    }
+
+    @SuppressLint("MissingPermission")
+    public static String getNetworkClass(Context context) {
+        //获取系统的网络服务
+        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        //如果当前没有网络
+        if (null == connManager)
+            return "none";
+
+        //获取当前网络类型，如果为空，返回无网络
+        NetworkInfo activeNetInfo = connManager.getActiveNetworkInfo();
+        if (activeNetInfo == null || !activeNetInfo.isAvailable()) {
+            return "none";
+        }
+
+        // 判断是不是连接的是不是wifi
+        NetworkInfo wifiInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        if (null != wifiInfo) {
+            NetworkInfo.State state = wifiInfo.getState();
+            if (null != state)
+                if (state == NetworkInfo.State.CONNECTED || state == NetworkInfo.State.CONNECTING) {
+                    return "wifi";
+                }
+        }
+
+        // 如果不是wifi，则判断当前连接的是运营商的哪种网络2g、3g、4g等
+        NetworkInfo networkInfo = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+        if (null != networkInfo) {
+            NetworkInfo.State state = networkInfo.getState();
+            String strSubTypeName = networkInfo.getSubtypeName();
+            if (null != state)
+                if (state == NetworkInfo.State.CONNECTED || state == NetworkInfo.State.CONNECTING) {
+                    switch (activeNetInfo.getSubtype()) {
+                        //如果是2g类型
+                        case TelephonyManager.NETWORK_TYPE_GPRS: // 联通2g
+                        case TelephonyManager.NETWORK_TYPE_CDMA: // 电信2g
+                        case TelephonyManager.NETWORK_TYPE_EDGE: // 移动2g
+                        case TelephonyManager.NETWORK_TYPE_1xRTT:
+                        case TelephonyManager.NETWORK_TYPE_IDEN:
+                            return "2G";
+                        //如果是3g类型
+                        case TelephonyManager.NETWORK_TYPE_EVDO_A: // 电信3g
+                        case TelephonyManager.NETWORK_TYPE_UMTS:
+                        case TelephonyManager.NETWORK_TYPE_EVDO_0:
+                        case TelephonyManager.NETWORK_TYPE_HSDPA:
+                        case TelephonyManager.NETWORK_TYPE_HSUPA:
+                        case TelephonyManager.NETWORK_TYPE_HSPA:
+                        case TelephonyManager.NETWORK_TYPE_EVDO_B:
+                        case TelephonyManager.NETWORK_TYPE_EHRPD:
+                        case TelephonyManager.NETWORK_TYPE_HSPAP:
+                            return "3G";
+                        //如果是4g类型
+                        case TelephonyManager.NETWORK_TYPE_LTE:
+                            return "4G";
+                        case TelephonyManager.NETWORK_TYPE_NR:
+                            return "5G";
+                        default:
+                            //中国移动 联通 电信 三种3G制式
+                            if (strSubTypeName.equalsIgnoreCase("TD-SCDMA") || strSubTypeName.equalsIgnoreCase("WCDMA") || strSubTypeName.equalsIgnoreCase("CDMA2000")) {
+                                return "3G";
+                            } else {
+                                return "wifi";
+                            }
+                    }
+                }
+        }
+        return "none";
+    }
+
+    public static boolean isCharged(Context context) {
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatusIntent = context.registerReceiver(null, ifilter);
+        //如果设备正在充电，可以提取当前的充电状态和充电方式（无论是通过 USB 还是交流充电器），如下所示：
+
+        // Are we charging / charged?
+        int status = batteryStatusIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL;
+
+        // How are we charging?
+        int chargePlug = batteryStatusIntent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        boolean usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
+        boolean acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
+
+        if (isCharging) {
+            if (usbCharge) {
+                return false;
+            } else {
+                return acCharge;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 判断是不是模拟器
+     */
+    public static boolean isEmulator(Context context) {
+        // readSysProperty 和 hasEmulatorAdb 会对真机造成误伤
+//        boolean b = readSysProperty();
+//        if (!b) {
+//            if (FindEmulator.hasEmulatorAdb()) {
+//                return true;
+//            }
+//        }
+        boolean b = EmulatorFiles.hasEmulatorFile();
+        if (!b) {
+            return DeviceInfoUtils.isPcKernel();
+        }
+        return b;
+    }
+
+    public static boolean isEmulator2(Context context) {
+        return EmulatorCheck.readSysProperty(context);
+    }
+
+
+    /**
+     * cat /proc/cpuinfo
+     * 从cpuinfo中读取cpu架构，检测CPU是否是PC端
+     */
+    public static boolean isPcKernel() {
+        String str = "";
+        try {
+            Process start = new ProcessBuilder(new String[]{"/system/bin/cat", "/proc/cpuinfo"}).start();
+            StringBuilder stringBuffer = new StringBuilder();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(start.getInputStream(), StandardCharsets.UTF_8));
+            while (true) {
+                String readLine = bufferedReader.readLine();
+                if (readLine == null) {
+                    break;
+                }
+                stringBuffer.append(readLine);
+            }
+            bufferedReader.close();
+            str = stringBuffer.toString().toLowerCase();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return str.contains("intel") || str.contains("amd");
+    }
+
 }
