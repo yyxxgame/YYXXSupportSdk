@@ -421,9 +421,6 @@ public class DeviceInfoUtils {
     /**
      * 获取运营商
      * 1、移动；2、联通；3、电信；4、其他
-     *
-     * @param context
-     * @return
      */
     public static String getSimOperator(Context context) {
         String code = getSimOperatorCode(context);
@@ -519,6 +516,15 @@ public class DeviceInfoUtils {
         return "none";
     }
 
+    public static String getNetworkType(Context context) {
+        String networkClz = getNetworkClass(context);
+        if ("none".equals(networkClz) || "wifi".equals(networkClz)) {
+            return "0";
+        } else {
+            return "1";
+        }
+    }
+
     public static boolean isCharged(Context context) {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatusIntent = context.registerReceiver(null, ifilter);
@@ -575,7 +581,7 @@ public class DeviceInfoUtils {
     public static boolean isPcKernel() {
         String str = "";
         try {
-            Process start = new ProcessBuilder(new String[]{"/system/bin/cat", "/proc/cpuinfo"}).start();
+            Process start = new ProcessBuilder("/system/bin/cat", "/proc/cpuinfo").start();
             StringBuilder stringBuffer = new StringBuilder();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(start.getInputStream(), StandardCharsets.UTF_8));
             while (true) {

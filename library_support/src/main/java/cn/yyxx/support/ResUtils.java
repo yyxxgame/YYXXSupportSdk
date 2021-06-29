@@ -15,4 +15,12 @@ public class ResUtils {
     public static int getResId(Context context, String name, String type) {
         return context.getResources().getIdentifier(name, type, context.getPackageName());
     }
+
+    public static String getResString(Context context, String name) {
+        if (getResId(context, name, "string") == 0) {
+            return "";
+        } else {
+            return context.getResources().getString(getResId(context, name, "string"));
+        }
+    }
 }

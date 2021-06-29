@@ -2,11 +2,15 @@ package com.yyxx.support.demo
 
 import android.app.Activity
 import android.app.Service
-import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Binder
 import android.os.IBinder
+import cn.yyxx.support.ResUtils
 import cn.yyxx.support.hawkeye.LogUtils
+import cn.yyxx.support.ui.floating.FloatItem
+import cn.yyxx.support.ui.floating.FloatLogoMenu
+import cn.yyxx.support.ui.floating.FloatMenuView
 
 /**
  * @author #Suyghur.
@@ -15,26 +19,58 @@ import cn.yyxx.support.hawkeye.LogUtils
 class FloatViewService : Service() {
 
     private lateinit var activity: Activity
-    private var floatView: FloatView? = null
+    private var floatView: FloatLogoMenu? = null
 
     override fun onCreate() {
         super.onCreate()
     }
 
 
-    fun initFloatView(activity:Activity) {
+    fun initFloatView(activity: Activity) {
         this.activity = activity
         LogUtils.d("init")
     }
 
     fun show() {
         if (floatView == null) {
-            floatView = FloatView(activity)
+            val features = mutableListOf(
+                FloatItem(
+                    "aaaa", "#1DB1AD",
+                    "#000000", BitmapFactory.decodeResource(activity.resources, ResUtils.getResId(activity, "float_icon", "drawable"))
+                ),
+                FloatItem(
+                    "aaaa", "#1DB1AD",
+                    "#000000", BitmapFactory.decodeResource(activity.resources, ResUtils.getResId(activity, "float_icon", "drawable"))
+                ),
+                FloatItem(
+                    "aaaa", "#1DB1AD",
+                    "#000000", BitmapFactory.decodeResource(activity.resources, ResUtils.getResId(activity, "float_icon", "drawable"))
+                ),
+                FloatItem(
+                    "aaaa", "#1DB1AD",
+                    "#000000", BitmapFactory.decodeResource(activity.resources, ResUtils.getResId(activity, "float_icon", "drawable"))
+                )
+            )
+            floatView = FloatLogoMenu.Builder()
+                .withActivity(activity)
+                .logo(BitmapFactory.decodeResource(activity.resources, ResUtils.getResId(activity, "float_icon", "drawable")))
+                .drawCicleMenuBg(true)
+                .backMenuColor("#FFFFFF")
+                .setBgDrawable(activity.resources.getDrawable(ResUtils.getResId(activity, "yyxx_float_menu_bg", "drawable")))
+                //这个背景色需要和logo的背景色一致
+                .setFloatItems(features)
+                .defaultLocation(FloatLogoMenu.LEFT)
+                .drawRedPointNum(false)
+                .showWithListener(object : FloatMenuView.OnMenuClickListener {
+                    override fun onItemClick(position: Int, title: String?) {
+                    }
+
+                    override fun dismiss() {
+                    }
+
+                })
         }
-        if (floatView == null) {
-            LogUtils.d("aaaa")
-        }
-        LogUtils.d("show")
+
         floatView?.show()
     }
 

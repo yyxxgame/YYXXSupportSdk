@@ -1,6 +1,5 @@
 package com.yyxx.support.demo
 
-import android.app.Activity
 import android.content.Context
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -19,7 +18,7 @@ class FloatView(context: Context) : DragViewLayout(context) {
     init {
         isClickable = true
         imageView = ImageView(context)
-        imageView.setBackgroundResource(ResUtils.getResId(context, "icon", "drawable"))
+        imageView.setBackgroundResource(ResUtils.getResId(context, "float_icon", "drawable"))
         imageView.setOnClickListener {
             LogUtils.d("点击了DemoFloatView")
         }

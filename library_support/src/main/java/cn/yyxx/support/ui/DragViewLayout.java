@@ -1,7 +1,6 @@
 package cn.yyxx.support.ui;
 
 import android.animation.ValueAnimator;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.view.Gravity;
@@ -10,14 +9,14 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-
-import cn.yyxx.support.hawkeye.LogUtils;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 /**
  * @author #Suyghur.
  * Created on 2021/05/12
  */
-public class DragViewLayout extends FrameLayout {
+public class DragViewLayout extends LinearLayout {
 
     //view所在位置
     private int mLastX, mLastY;
@@ -26,16 +25,17 @@ public class DragViewLayout extends FrameLayout {
     private int mScreenWidth, mScreenHeight;
 
     //view宽高
-    private int mWidth, mHeight;
+    protected int mWidth, mHeight;
 
     //是否在拖拽过程中
-    private boolean isDrag = false;
+    protected boolean isDrag = false;
 
     //系统最新滑动距离
     private int mTouchSlop = 0;
 
     private WindowManager.LayoutParams floatLayoutParams;
     private WindowManager mWindowManager;
+
 
     //手指触摸位置
     private float xInScreen;
@@ -117,7 +117,7 @@ public class DragViewLayout extends FrameLayout {
         }
     }
 
-    private void updateFloatPosition(boolean isUp) {
+    protected void updateFloatPosition(boolean isUp) {
         int x = (int) (xInScreen - xInView);
         int y = (int) (yInScreen - yInView);
         if (isUp) {
@@ -132,11 +132,11 @@ public class DragViewLayout extends FrameLayout {
         mWindowManager.updateViewLayout(this, floatLayoutParams);
     }
 
-    private boolean isRightFloat() {
-        return xInScreen > mScreenWidth / 2;
+    protected boolean isRightFloat() {
+        return xInScreen > mScreenWidth / 2.0f;
     }
 
-    private void startAnim() {
+    protected void startAnim() {
         ValueAnimator valueAnimator;
         if (floatLayoutParams.x < mScreenWidth / 2) {
             valueAnimator = ValueAnimator.ofInt(floatLayoutParams.x, 0);
@@ -165,4 +165,5 @@ public class DragViewLayout extends FrameLayout {
     public void release() {
         mWindowManager.removeView(this);
     }
+
 }

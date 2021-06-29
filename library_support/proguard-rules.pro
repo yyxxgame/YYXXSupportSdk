@@ -118,13 +118,18 @@
 -keep class cn.yyxx.support.device.DeviceInfoUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.DensityUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.JsonUtils{ public <fields>;public <methods>;}
--keep class cn.yyxx.support.ui.**{ public <fields>; public <methods>;}
+-keep class cn.yyxx.support.ui.**{ *;}
 -keep class cn.yyxx.support.encryption.**{ public <fields>; public <methods>;}
 -keep class cn.yyxx.support.FileUtils{ public <fields>;public <methods>;}
+-keep class cn.yyxx.support.ReflectUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.HostModelUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.PropertiesUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.ResUtils{ public <fields>;public <methods>;}
+-keep class cn.yyxx.support.StrUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.scheduler.**{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.msa.**{ public <fields>; public <methods>;}
+-keep class cn.yyxx.support.gaid.**{ public <fields>; public <methods>;}
 -keep class cn.yyxx.support.hawkeye.**{ public <fields>; public <methods>;}
+-keep class cn.yyxx.support.cache.**{ public <fields>; public <methods>;}
+-keep class cn.yyxx.support.multidex.**{ public <fields>; public <methods>;}
 -keep class cn.yyxx.support.volley.**{ *;}

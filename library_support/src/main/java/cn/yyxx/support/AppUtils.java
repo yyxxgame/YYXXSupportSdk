@@ -70,18 +70,33 @@ public class AppUtils {
     }
 
     /**
+     * 获得程序版本号
+     */
+    public static String getVersionCodeStr(Context context) {
+        if (context == null) {
+            return "0";
+        }
+        try {
+            return String.valueOf(context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return "0";
+    }
+
+    /**
      * 获取应用程序版本名称信息
      */
     public static String getVersionName(Context context) {
         if (context == null) {
-            return "1";
+            return "0";
         }
         try {
             return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        return "1";
+        return "0";
     }
 
     public static String getProcessName(Context context) {

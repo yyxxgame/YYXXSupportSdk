@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
+import cn.yyxx.support.hawkeye.LogUtils
 import com.yyxx.support.demo.FloatViewService.FloatViewServiceBinder
 
 /**
@@ -51,6 +52,7 @@ class FloatViewServiceManager {
     }
 
     fun release() {
+        LogUtils.d("release")
         mService?.release()
         if (isBindService) {
             mActivity?.apply {

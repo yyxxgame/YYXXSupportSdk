@@ -112,13 +112,16 @@ class DemoActivity : Activity(), View.OnClickListener {
                 }
                 2 -> requestImg()
                 3 -> FloatViewServiceManager.getInstance().attach()
-                4 -> FloatViewServiceManager.getInstance().detach()
-                5 -> {
-                    MMKV.defaultMMKV()!!.encode("test", "yyxx support")
-                    MMKV.defaultMMKV()!!.encode("test1", "yyxx support1")
-                    MMKV.defaultMMKV()!!.encode("test2", "yyxx support2")
-                    MMKV.defaultMMKV()!!.encode("test3", "yyxx support3")
 
+                4 -> FloatViewServiceManager.getInstance().detach()
+
+                5 -> {
+//                    MMKV.defaultMMKV()!!.encode("test", "yyxx support")
+//                    MMKV.defaultMMKV()!!.encode("test1", "yyxx support1")
+//                    MMKV.defaultMMKV()!!.encode("test2", "yyxx support2")
+//                    MMKV.defaultMMKV()!!.encode("test3", "yyxx support3")
+//                    val text =
+//                        "eFeiSQvEaVfyAmbsKfYpHjK/g3VFQ2lzHaLMv7f2yKXCoka0wGE6zp/4y6REvnpjspBn81Gya+yi3Q3MV3h3csxF0QA2ebKy+ytV3Lmwb5RUx/F5ps01wZ83QkVa2WpxzDG1zBaT6NxnfDXO2oL0J+6d4/E82fbEt0kwvO0KyfU="
                 }
                 6 -> {
 //                    sb.append("MMKV decode : ").append(MMKV.defaultMMKV()!!.decodeString("test"))

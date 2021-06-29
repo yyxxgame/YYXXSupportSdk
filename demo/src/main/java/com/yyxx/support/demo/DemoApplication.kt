@@ -14,15 +14,15 @@ class DemoApplication : Application() {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        MsaDeviceIdsHandler.initMsaDeviceIds(this) { code, msg, _ ->
-            LogUtils.i("initMsaDeviceIds code : $code , msg : $msg")
-        }
+//        MsaDeviceIdsHandler.initMsaDeviceIds(this) { code, msg, _ ->
+//            LogUtils.i("initMsaDeviceIds code : $code , msg : $msg")
+//        }
 
     }
 
     override fun onCreate() {
         super.onCreate()
-        val dir = MMKV.initialize(this)
-        LogUtils.i("mmkv dir : $dir")
+//        val dir = MMKV.initialize(this)
+//        LogUtils.i("mmkv dir : $dir")
     }
 }

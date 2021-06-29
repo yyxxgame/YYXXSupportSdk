@@ -42,7 +42,14 @@ android {
 
 dependencies {
     compileOnly files('../libs/oaid_sdk_1.0.25.jar')
-    compileOnly files('../libs/android-support-v4.jar')
+    if (USE_ANDROIDX_VOLLEY) {
+        implementation "org.chromium.net:cronet-embedded:76.3809.111"
+        implementation 'androidx.core:core:1.5.0'
+        api files('../libs/yyxx_support_volleyx_1.0.0.jar')
+    } else {
+        implementation files('../libs/android-support-v4.jar')
+        api files('../libs/yyxx_support_volley_1.0.0.jar')
+    }
 }
 
 apply from: 'buildJar.gradle'
