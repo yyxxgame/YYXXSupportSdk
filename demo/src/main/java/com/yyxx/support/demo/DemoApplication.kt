@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import cn.yyxx.support.hawkeye.LogUtils
 import cn.yyxx.support.msa.MsaDeviceIdsHandler
-import com.tencent.mmkv.MMKV
 
 /**
  * @author #Suyghur.

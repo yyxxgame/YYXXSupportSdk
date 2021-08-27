@@ -2,17 +2,22 @@ package com.yyxx.support.demo
 
 import android.app.Activity
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.*
 import cn.yyxx.support.AppUtils
+import cn.yyxx.support.DensityUtils
 import cn.yyxx.support.device.DeviceInfoUtils
 import cn.yyxx.support.hawkeye.LogUtils
+import cn.yyxx.support.hawkeye.OwnDebugUtils
 import cn.yyxx.support.msa.MsaDeviceIdsHandler
+import cn.yyxx.support.ui.scaleprogress.ScaleLoadingView
 import cn.yyxx.support.volley.VolleySingleton
 import cn.yyxx.support.volley.source.Response
 import cn.yyxx.support.volley.source.toolbox.ImageRequest
 import com.tencent.mmkv.MMKV
+import kotlin.system.exitProcess
 
 /**
  * @author #Suyghur.
@@ -27,7 +32,9 @@ class DemoActivity : Activity(), View.OnClickListener {
         Item(3, "显示浮标"),
         Item(4, "隐藏浮标"),
         Item(5, "MMKV测试 encode"),
-        Item(6, "MMKV测试 decode")
+        Item(6, "MMKV测试 decode"),
+        Item(7, "test")
+
     )
 
     private lateinit var textView: TextView
@@ -40,6 +47,7 @@ class DemoActivity : Activity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         initView()
         initDeviceInfo()
+        LogUtils.d("own ${OwnDebugUtils.isOwnDebug(this, "yyxx_cfg.properties", "yyxx_game", "YYXX_OWN_DEBUG")}")
     }
 
     private fun initView() {
@@ -60,6 +68,11 @@ class DemoActivity : Activity(), View.OnClickListener {
 //        gifView.setGifResource(ResUtils.getResId(this, "test", "drawable"))
 //        layout.addView(gifView)
         imgView = ImageView(this)
+        val viewSize = DensityUtils.dip2px(this, 60f)
+        val divideSize = DensityUtils.dip2px(this, 3f)
+        val count = 6
+        val color = Color.parseColor("#1DB1AD")
+        layout.addView(ScaleLoadingView(this, viewSize, divideSize, count, Color.parseColor("#1DB1AD"), Color.parseColor("#7EB944")))
         layout.addView(imgView)
         val scrollView = ScrollView(this)
         scrollView.addView(layout)
@@ -116,16 +129,16 @@ class DemoActivity : Activity(), View.OnClickListener {
                 4 -> FloatViewServiceManager.getInstance().detach()
 
                 5 -> {
-//                    MMKV.defaultMMKV()!!.encode("test", "yyxx support")
-//                    MMKV.defaultMMKV()!!.encode("test1", "yyxx support1")
-//                    MMKV.defaultMMKV()!!.encode("test2", "yyxx support2")
-//                    MMKV.defaultMMKV()!!.encode("test3", "yyxx support3")
-//                    val text =
-//                        "eFeiSQvEaVfyAmbsKfYpHjK/g3VFQ2lzHaLMv7f2yKXCoka0wGE6zp/4y6REvnpjspBn81Gya+yi3Q3MV3h3csxF0QA2ebKy+ytV3Lmwb5RUx/F5ps01wZ83QkVa2WpxzDG1zBaT6NxnfDXO2oL0J+6d4/E82fbEt0kwvO0KyfU="
+                    MMKV.defaultMMKV()!!.encode("test", "yyxx support")
+                    MMKV.defaultMMKV()!!.encode("test1", "yyxx support1")
+                    MMKV.defaultMMKV()!!.encode("test2", "yyxx support2")
+                    MMKV.defaultMMKV()!!.encode("test3", "yyxx support3")
+                    val text =
+                        "eFeiSQvEaVfyAmbsKfYpHjK/g3VFQ2lzHaLMv7f2yKXCoka0wGE6zp/4y6REvnpjspBn81Gya+yi3Q3MV3h3csxF0QA2ebKy+ytV3Lmwb5RUx/F5ps01wZ83QkVa2WpxzDG1zBaT6NxnfDXO2oL0J+6d4/E82fbEt0kwvO0KyfU="
                 }
                 6 -> {
-//                    sb.append("MMKV decode : ").append(MMKV.defaultMMKV()!!.decodeString("test"))
-//                    textView.text = sb.toString()
+                    sb.append("MMKV decode : ").append(MMKV.defaultMMKV()!!.decodeString("test"))
+                    textView.text = sb.toString()
                     val keys = MMKV.defaultMMKV()!!.allKeys()
                     keys?.apply {
                         for (key in this) {
@@ -150,6 +163,6 @@ class DemoActivity : Activity(), View.OnClickListener {
     override fun onDestroy() {
         super.onDestroy()
         FloatViewServiceManager.getInstance().release()
-
+        exitProcess(0)
     }
 }

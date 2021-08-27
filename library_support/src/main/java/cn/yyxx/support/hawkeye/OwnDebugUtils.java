@@ -23,7 +23,7 @@ public class OwnDebugUtils {
         }
         //配置文件中关闭时再判断私有目录
         String ownFileName = context.getExternalFilesDir(null).getAbsolutePath() + "/" + OWN_DEBUG_FILE;
-        File file = new File(fileName);
+        File file = new File(ownFileName);
         if (!file.exists()) {
             return false;
         }

@@ -14,7 +14,7 @@ public class JsonUtils {
     }
 
     public static boolean hasJsonKey(JSONObject jsonObject, String key) throws JSONException {
-//        return jsonObject.has(key) && !jsonObject.getString(key).equals("[]")&&!jsonObject.getString(key).equals("{}");
-        return jsonObject.has(key) && !jsonObject.getString(key).equals("[]");
+        return jsonObject.has(key) && !jsonObject.getString(key).equals("[]")&&!jsonObject.getString(key).equals("{}");
+//        return jsonObject.has(key) && !jsonObject.getString(key).equals("[]");
     }
 }

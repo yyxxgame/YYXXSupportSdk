@@ -16,7 +16,7 @@ import android.widget.RelativeLayout;
  * @author #Suyghur.
  * Created on 2021/05/12
  */
-public class DragViewLayout extends LinearLayout {
+public class DragViewLayout extends FrameLayout {
 
     //view所在位置
     private int mLastX, mLastY;
