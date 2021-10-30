@@ -13,6 +13,7 @@ import cn.yyxx.support.encryption.rsa.RsaUtils
 import cn.yyxx.support.hawkeye.LogUtils
 import cn.yyxx.support.hawkeye.OwnDebugUtils
 import cn.yyxx.support.msa.MsaDeviceIdsHandler
+import cn.yyxx.support.permission.PermissionKitActivity.start
 import cn.yyxx.support.ui.scaleprogress.ScaleLoadingView
 import cn.yyxx.support.volley.VolleySingleton
 import cn.yyxx.support.volley.source.Response
@@ -35,7 +36,7 @@ class DemoActivity : Activity(), View.OnClickListener {
         Item(4, "隐藏浮标"),
         Item(5, "MMKV测试 encode"),
         Item(6, "MMKV测试 decode"),
-        Item(7, "test")
+        Item(7, "权限测试")
 
     )
 
@@ -149,14 +150,7 @@ class DemoActivity : Activity(), View.OnClickListener {
                     }
                 }
                 7 -> {
-                    val rsaKey =
-                        "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC3eXf1JxdFtx6c8AJTdlSverL8WqRE11yFB6Q+GbQeEVXjSCgQN48qePat7mXbH4LAtjaSEqXHruP4hJO8777wYtEKNKIN2VZgWQElrllAuAtaHyA+UGKwulOKmkR8k1Oxmfd46fnQBwzy+Giab4lqQRQAObCT0QtUrlrsU1U+zwIDAQAB"
-
-//            String unamePwd = SDKDrive.getInstance().RsaEncrypt(userName + "|" + pwd);
-
-//            String unamePwd = SDKDrive.getInstance().RsaEncrypt(userName + "|" + pwd);
-                    val unamePwd = RsaUtils.encryptByPublicKey("test1231|a123456", rsaKey)
-                    LogUtils.d(unamePwd)
+                   PermissionActivity.start(this@DemoActivity)
                 }
             }
         }

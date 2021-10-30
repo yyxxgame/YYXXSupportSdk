@@ -3,17 +3,17 @@ plugins {
 }
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION
-    buildToolsVersion BUILD_TOOLS_VERSION
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion MIN_SDK_VERSION
-        targetSdkVersion TARGET_SDK_VERSION
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
     }
 
     buildTypes {
         release {
-            minifyEnabled MINIFY_ENABLE
+            minifyEnabled rootProject.ext.tag.minify
             proguardFiles 'proguard-rules.pro'
         }
     }
@@ -36,15 +36,20 @@ android {
         preDexLibraries = false
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     //api23以上使用 httpClient
     useLibrary 'org.apache.http.legacy'
 }
 
 dependencies {
     compileOnly files('../libs/oaid_sdk_1.0.25.jar')
-    if (USE_ANDROIDX_VOLLEY) {
-        implementation "org.chromium.net:cronet-embedded:76.3809.111"
-        implementation 'androidx.core:core:1.5.0'
+    if (rootProject.ext.tag.useAndroidXVolley) {
+        implementation rootProject.ext.other['cronet']
+        implementation rootProject.ext.ktx['core']
         api files('../libs/yyxx_support_volleyx_1.0.0.jar')
     } else {
         compileOnly files('../libs/android-support-v4.jar')

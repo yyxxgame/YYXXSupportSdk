@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION
-    buildToolsVersion BUILD_TOOLS_VERSION
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
 
     defaultConfig {
-        minSdkVersion MIN_SDK_VERSION
-        targetSdkVersion TARGET_SDK_VERSION
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
     }
 
     buildTypes {
@@ -41,8 +41,8 @@ android {
 }
 
 dependencies {
-    implementation "org.chromium.net:cronet-embedded:76.3809.111"
-    implementation 'androidx.core:core:1.5.0'
+    implementation rootProject.ext.other['cronet']
+    implementation rootProject.ext.ktx['core']
 }
 
 apply from: 'buildJar.gradle'

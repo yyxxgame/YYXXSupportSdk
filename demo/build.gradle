@@ -8,15 +8,15 @@ def keystoreProperties = new Properties()
 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION
-    buildToolsVersion BUILD_TOOLS_VERSION
+    compileSdkVersion rootProject.ext.android.compileSdkVersion
+    buildToolsVersion rootProject.ext.android.buildToolsVersion
 
     defaultConfig {
         applicationId "com.yyxx.support.demo"
-        minSdkVersion MIN_SDK_VERSION
-        targetSdkVersion TARGET_SDK_VERSION
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        versionCode rootProject.ext.android.versionCode
+        versionName rootProject.ext.android.versionName
 
         ndk {
             // 设置支持的SO库架构
@@ -75,4 +75,5 @@ dependencies {
     implementation project(':library_support')
     implementation files('../libs/oaid_sdk_1.0.25.jar')
     implementation files('../libs/mmkv-static-1.2.8.jar')
+    implementation files('../libs/android-support-v4.jar')
 }
