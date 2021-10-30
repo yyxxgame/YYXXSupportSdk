@@ -21,11 +21,15 @@ public class AesDecrypt extends AesCommon {
     private final Cipher aesCipher;
 
     public AesDecrypt(byte[] aesKey) {
+        this(aesKey, generateIV(aesKey));
+    }
+
+    public AesDecrypt(byte[] aesKey, byte[] iv) {
         if (aesKey == null || !(aesKey.length == 16 || aesKey.length == 32)) {
             throw new RuntimeException("aes key should be 16 bytes(128bits) or 32 bytes(256bits)");
         }
         this.aesKey = aesKey;
-        this.iv = generateIV(this.aesKey);
+        this.iv = iv;
         try {
             this.aesCipher = Cipher.getInstance(AES_CBC_PKCS5PADDING);
         } catch (NoSuchAlgorithmException e) {

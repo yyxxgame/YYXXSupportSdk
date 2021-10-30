@@ -91,7 +91,7 @@ public interface Cache {
          *
          * <p>Note that if the server returns two headers with the same (case-insensitive) name,
          * this map will only contain the one of them. {@link #allResponseHeaders} may contain all
-         * headers if the {@link .Cache} implementation supports it.
+         * headers if the {@link Cache} implementation supports it.
          */
         public Map<String, String> responseHeaders = Collections.emptyMap();
 

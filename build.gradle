@@ -2,7 +2,7 @@
 buildscript {
 
     ext {
-        USE_ANDROIDX_VOLLEY = true
+        USE_ANDROIDX_VOLLEY = false
         // 混淆开关
         MINIFY_ENABLE = true
         // ndk版本

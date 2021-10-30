@@ -461,10 +461,10 @@ public class RsaUtils {
     }
 
     public static String encryptByPublicKey(String raw) {
-        return encryptByPublicKey(RSA_PUBLIC_1024_X509_PEM, raw);
+        return encryptByPublicKey(raw, RSA_PUBLIC_1024_X509_PEM);
     }
 
-    public static String encryptByPublicKey(String key, String raw) {
+    public static String encryptByPublicKey(String raw, String key) {
         String enc = "";
         byte[] keyBytesPublic = Base64Utils.decode(key);
         try {
@@ -479,10 +479,10 @@ public class RsaUtils {
 
 
     public static String decryptByPublicKey(String enc) {
-        return decryptByPublicKey(RSA_PUBLIC_1024_X509_PEM, enc);
+        return decryptByPublicKey(enc, RSA_PUBLIC_1024_X509_PEM);
     }
 
-    public static String decryptByPublicKey(String key, String enc) {
+    public static String decryptByPublicKey(String enc, String key) {
         String raw = "";
         byte[] keyBytesPublic = Base64Utils.decode(key);
         try {
@@ -516,7 +516,7 @@ public class RsaUtils {
         byte[] keyBytesPrivate = Base64Utils.decode(priKey);
         try {
             byte[] bytes = decryptByPrivateKey(Base64Utils.decode(enc), keyBytesPrivate);
-            raw = new String(bytes, "utf-8");
+            raw = new String(bytes, "UTF-8");
         } catch (Exception e) {
             e.printStackTrace();
         }

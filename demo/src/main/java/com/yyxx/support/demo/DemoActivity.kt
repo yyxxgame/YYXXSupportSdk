@@ -9,6 +9,7 @@ import android.widget.*
 import cn.yyxx.support.AppUtils
 import cn.yyxx.support.DensityUtils
 import cn.yyxx.support.device.DeviceInfoUtils
+import cn.yyxx.support.encryption.rsa.RsaUtils
 import cn.yyxx.support.hawkeye.LogUtils
 import cn.yyxx.support.hawkeye.OwnDebugUtils
 import cn.yyxx.support.msa.MsaDeviceIdsHandler
@@ -18,6 +19,7 @@ import cn.yyxx.support.volley.source.Response
 import cn.yyxx.support.volley.source.toolbox.ImageRequest
 import com.tencent.mmkv.MMKV
 import kotlin.system.exitProcess
+
 
 /**
  * @author #Suyghur.
@@ -145,6 +147,16 @@ class DemoActivity : Activity(), View.OnClickListener {
                             LogUtils.i(key)
                         }
                     }
+                }
+                7 -> {
+                    val rsaKey =
+                        "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC3eXf1JxdFtx6c8AJTdlSverL8WqRE11yFB6Q+GbQeEVXjSCgQN48qePat7mXbH4LAtjaSEqXHruP4hJO8777wYtEKNKIN2VZgWQElrllAuAtaHyA+UGKwulOKmkR8k1Oxmfd46fnQBwzy+Giab4lqQRQAObCT0QtUrlrsU1U+zwIDAQAB"
+
+//            String unamePwd = SDKDrive.getInstance().RsaEncrypt(userName + "|" + pwd);
+
+//            String unamePwd = SDKDrive.getInstance().RsaEncrypt(userName + "|" + pwd);
+                    val unamePwd = RsaUtils.encryptByPublicKey("test1231|a123456", rsaKey)
+                    LogUtils.d(unamePwd)
                 }
             }
         }

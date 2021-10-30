@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.RectF;
@@ -22,14 +21,13 @@ import java.util.List;
 public class ScaleLoadingView extends View {
 
     private float mDefaultSize = 0f;
-    private int mBarColor = Color.GREEN;
     private int startColor = 0;
     private int endColor = 0;
     private Paint mPaint;
     private List<DataBean> mDataBeanList = null;
     private int mBarCount = 5;
     private float mBarDivideSize = 0f;
-    private long mPerBarTime = 300L;
+    private final long mPerBarTime = 300L;
 
     public ScaleLoadingView(Context context, int viewSize, int divideSize, int count, int startColor, int endColor) {
         super(context);
@@ -41,21 +39,9 @@ public class ScaleLoadingView extends View {
         initView(context);
     }
 
-//    public ScaleLoadingView(Context context, @Nullable AttributeSet attrs) {
-//        this(context, attrs, 0);
-//    }
-//
-//    public ScaleLoadingView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-//        super(context, attrs, defStyleAttr);
-//        initView(context);
-//    }
-
     private void initView(Context context) {
-//        mDefaultSize = DensityUtils.dip2px(context, 60f);
-//        mBarDivideSize = DensityUtils.dip2px(context, 5f);
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setStyle(Paint.Style.FILL);
-//        mPaint.setColor(mBarColor);
         LinearGradient linearGradient = new LinearGradient(0, 0, 180, 0, startColor, endColor, Shader.TileMode.MIRROR);
         mPaint.setShader(linearGradient);
         if (mDataBeanList == null) {
@@ -120,17 +106,8 @@ public class ScaleLoadingView extends View {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-//        LogUtils.d(" --- onDetachedFromWindow ---");
         if (mDataBeanList != null) {
-//            LogUtils.d(" --- onDetachedFromWindow size : " + mDataBeanList.size() + " ---");
-//            for (int i = 0; i < mDataBeanList.size(); i++) {
-//                LogUtils.d("cancel valueAnimator " + i);
-//                if (mDataBeanList.get(i).valueAnimator != null) {
-//                    mDataBeanList.get(i).valueAnimator.cancel();
-//                    mDataBeanList.get(i).valueAnimator = null;
-//                }
-//
-//            }
+
             for (DataBean bean : mDataBeanList) {
                 if (bean.valueAnimator != null) {
                     bean.valueAnimator.cancel();
