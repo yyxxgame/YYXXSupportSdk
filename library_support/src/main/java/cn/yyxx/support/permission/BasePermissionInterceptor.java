@@ -9,6 +9,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.yyxx.support.hawkeye.LogUtils;
+
 /**
  * @author #Suyghur.
  * Created on 2021/10/31
@@ -17,7 +19,6 @@ public class BasePermissionInterceptor implements IPermissionInterceptor {
     @Override
     public void requestPermissions(FragmentActivity activity, List<String> permissions, IPermissionCallback callback) {
         PermissionKitFragment.beginRequest(activity, new ArrayList<>(permissions), callback);
-
     }
 
     @Override
@@ -46,7 +47,7 @@ public class BasePermissionInterceptor implements IPermissionInterceptor {
     /**
      * 显示授权对话框
      */
-    protected void showPermissionDialog(FragmentActivity activity, List<String> permissions) {
+    private void showPermissionDialog(final FragmentActivity activity, final List<String> permissions) {
         // 这里的 Dialog 只是示例，没有用 DialogFragment 来处理 Dialog 生命周期
         new AlertDialog.Builder(activity)
                 .setTitle("授权提醒")
@@ -131,7 +132,7 @@ public class BasePermissionInterceptor implements IPermissionInterceptor {
                     }
                     break;
                 case Permission.READ_CALENDAR:
-                case  Permission.WRITE_CALENDAR:
+                case Permission.WRITE_CALENDAR:
                     hint = "日历权限";
                     if (!hints.contains(hint)) {
                         hints.add(hint);

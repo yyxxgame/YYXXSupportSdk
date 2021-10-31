@@ -131,12 +131,12 @@ public final class PermissionKit {
     /**
      * 请求权限
      */
-    public void request(Context context,IPermissionCallback callback) {
+    public void request(Context context, IPermissionCallback callback) {
 
         if (mInterceptor == null) {
             mInterceptor = getInterceptor();
         }
-        PermissionKitActivity.start(context,mPermissions,callback);
+        PermissionKitActivity.start(context, mPermissions, callback);
     }
 
     /**

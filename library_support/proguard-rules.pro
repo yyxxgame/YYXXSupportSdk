@@ -133,3 +133,10 @@
 -keep class cn.yyxx.support.cache.**{ public <fields>; public <methods>;}
 -keep class cn.yyxx.support.multidex.**{ public <fields>; public <methods>;}
 -keep class cn.yyxx.support.volley.**{ *;}
+-keep class cn.yyxx.support.permission.PermissionKit{  public <fields>; public <methods>;}
+-keep class cn.yyxx.support.permission.Permission{ *;}
+-keep class cn.yyxx.support.permission.Permission$Group{ *;}
+-keep class cn.yyxx.support.permission.PermissionKitActivity{  public <fields>; public <methods>;}
+-keep class cn.yyxx.support.permission.IPermissionCallback{  public <fields>; public <methods>;}
+
+

@@ -140,8 +140,7 @@ final class PermissionChecker {
 
                 int targetSdkVersion = context.getApplicationInfo().targetSdkVersion;
 
-                boolean requestLegacyExternalStorage = parser.getAttributeBooleanValue(PermissionUtils.ANDROID_NAMESPACE,
-                        "requestLegacyExternalStorage", false);
+                boolean requestLegacyExternalStorage = parser.getAttributeBooleanValue(PermissionUtils.ANDROID_NAMESPACE, "requestLegacyExternalStorage", false);
                 // 如果在已经适配 Android 10 的情况下
                 if (targetSdkVersion >= Build.VERSION_CODES.Q && !requestLegacyExternalStorage &&
                         (requestPermissions.contains(Permission.MANAGE_EXTERNAL_STORAGE) || !scopedStorage)) {
@@ -311,7 +310,7 @@ final class PermissionChecker {
 //                }
 //            }
 
-            if ((sdkVersion =31) >= minSdkVersion) {
+            if ((sdkVersion = 31) >= minSdkVersion) {
 
                 if (Permission.BLUETOOTH_SCAN.equals(permission)) {
                     checkManifestPermission(manifestPermissions, Manifest.permission.BLUETOOTH_ADMIN, sdkVersion);

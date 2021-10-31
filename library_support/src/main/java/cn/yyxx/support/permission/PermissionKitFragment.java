@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import cn.yyxx.support.hawkeye.LogUtils;
+
 /**
  * @author #Suyghur.
  * Created on 2021/10/29
@@ -224,8 +226,7 @@ public final class PermissionKitFragment extends Fragment implements Runnable {
                     continue;
                 }
                 // 跳转到特殊权限授权页面
-                startActivityForResult(PermissionSettingPage.getSmartPermissionIntent(activity,
-                        PermissionUtils.asArrayList(permission)), getArguments().getInt(REQUEST_CODE));
+                startActivityForResult(PermissionSettingPage.getSmartPermissionIntent(activity, PermissionUtils.asArrayList(permission)), getArguments().getInt(REQUEST_CODE));
                 requestSpecialPermission = true;
             }
         }
@@ -241,7 +242,7 @@ public final class PermissionKitFragment extends Fragment implements Runnable {
      * 申请危险权限
      */
     public void requestDangerousPermission() {
-        FragmentActivity activity = getActivity();
+        final FragmentActivity activity = getActivity();
         Bundle arguments = getArguments();
         if (activity == null || arguments == null) {
             return;
@@ -359,19 +360,19 @@ public final class PermissionKitFragment extends Fragment implements Runnable {
         List<String> grantedPermission = PermissionUtils.getGrantedPermissions(permissions, grantResults);
 
         // 如果请求成功的权限集合大小和请求的数组一样大时证明权限已经全部授予
-        if (grantedPermission.size() != permissions.length) {
-            callback.onGranted(grantedPermission, true);
+        if (grantedPermission.size() == permissions.length) {
+            PermissionKit.getInterceptor().grantedPermissions(activity, grantedPermission, true, callback);
             return;
         }
 
         // 获取被拒绝的权限
         List<String> deniedPermission = PermissionUtils.getDeniedPermissions(permissions, grantResults);
 
-        callback.onDenied(deniedPermission, PermissionUtils.isPermissionPermanentDenied(activity, deniedPermission));
+        PermissionKit.getInterceptor().deniedPermissions(activity, deniedPermission, PermissionUtils.isPermissionPermanentDenied(activity, deniedPermission), callback);
 
         // 证明还有一部分权限被成功授予，回调成功接口
         if (!grantedPermission.isEmpty()) {
-            callback.onGranted(grantedPermission, false);
+            PermissionKit.getInterceptor().grantedPermissions(activity, grantedPermission, false, callback);
         }
     }
 

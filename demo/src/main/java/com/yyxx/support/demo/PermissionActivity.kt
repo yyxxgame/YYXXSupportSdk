@@ -3,6 +3,7 @@ package com.yyxx.support.demo
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -116,118 +117,118 @@ class PermissionActivity : Activity(), View.OnClickListener {
                             }
                         })
                 }
-//                2 -> {
-//                    PermissionKit.with().permission(Permission.ACCESS_BACKGROUND_LOCATION).request(this@PermissionActivity, object : IPermissionCallback {
-//                        override fun onGranted(permissions: ArrayList<String>, all: Boolean) {
-//                            toast("获取定位权限成功")
-//                        }
-//
-//                        override fun onDenied(permissions: ArrayList<String>, never: Boolean) {
-//                        }
-//
-//                        override fun onProxyFinish() {
-//                        }
-//                    })
-//                }
-//                3 -> {
-//                    val delayMillis = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-//                        toast("当前版本不是 Android 11 以上，会自动变更为旧版的请求方式")
-//                        2000L
-//                    } else {
-//                        0L
-//                    }
-//                    postDelayed({
-//                        //不适配 Android 11 可以这样写permission(Permission.Group.STORAGE)
-//                        //适配 Android 11 需要这样写，这里无需再写 Permission.Group.STORAGE
-//                        Qojqva.with().permission(Permission.MANAGE_EXTERNAL_STORAGE).request(this@PermissionActivity, object : IPermissionCallback {
-//                            override fun onGranted(permissions: ArrayList<String>, all: Boolean) {
-//                                toast("获取存储权限成功")
-//                            }
-//
-//                            override fun onDenied(permissions: ArrayList<String>, never: Boolean) {
-//                            }
-//
-//                            override fun onProxyFinish() {
-//                            }
-//                        })
-//                    }, delayMillis)
-//                }
-//                4 -> {
-//                    val delayMillis = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-//                        toast("当前版本不是 Android 11 以上，会自动变更为旧版的请求方式")
-//                        2000L
-//                    } else {
-//                        0L
-//                    }
-//                    postDelayed({
-//                        //不适配 Android 11 可以这样写permission(Permission.Group.STORAGE)
-//                        //适配 Android 11 需要这样写，这里无需再写 Permission.Group.STORAGE
-//                        Qojqva.with().permission(Permission.Group.STORAGE).request(this@PermissionActivity, object : IPermissionCallback {
-//                            override fun onGranted(permissions: ArrayList<String>, all: Boolean) {
-//                                toast("获取存储权限成功")
-//                            }
-//
-//                            override fun onDenied(permissions: ArrayList<String>, never: Boolean) {
-//                            }
-//
-//                            override fun onProxyFinish() {
-//                            }
-//                        })
-//                    }, delayMillis)
-//                }
-//                5 -> {
-//                    Qojqva.with().permission(Permission.REQUEST_INSTALL_PACKAGES).request(this@PermissionActivity, object : IPermissionCallback {
-//                        override fun onGranted(permissions: ArrayList<String>, all: Boolean) {
-//                            toast("获取安装包权限成功")
-//                        }
-//
-//                        override fun onDenied(permissions: ArrayList<String>, never: Boolean) {
-//                        }
-//
-//                        override fun onProxyFinish() {
-//                        }
-//                    })
-//                }
-//                6 -> {
-//                    Qojqva.with().permission(Permission.SYSTEM_ALERT_WINDOW).request(this@PermissionActivity, object : IPermissionCallback {
-//                        override fun onGranted(permissions: ArrayList<String>, all: Boolean) {
-//                            toast("获取悬浮窗权限成功")
-//                        }
-//
-//                        override fun onDenied(permissions: ArrayList<String>, never: Boolean) {
-//                        }
-//
-//                        override fun onProxyFinish() {
-//                        }
-//                    })
-//                }
-//                7 -> {
-//                    Qojqva.with().permission(Permission.NOTIFICATION_SERVICE).request(this@PermissionActivity, object : IPermissionCallback {
-//                        override fun onGranted(permissions: ArrayList<String>, all: Boolean) {
-//                            toast("获取通知栏权限成功")
-//                        }
-//
-//                        override fun onDenied(permissions: ArrayList<String>, never: Boolean) {
-//                        }
-//
-//                        override fun onProxyFinish() {
-//                        }
-//                    })
-//                }
-//                8 -> {
-//                    Qojqva.with().permission(Permission.WRITE_SETTINGS).request(this@PermissionActivity, object : IPermissionCallback {
-//                        override fun onGranted(permissions: ArrayList<String>, all: Boolean) {
-//                            toast("获取系统设置权限成功")
-//                        }
-//
-//                        override fun onDenied(permissions: ArrayList<String>, never: Boolean) {
-//                        }
-//
-//                        override fun onProxyFinish() {
-//                        }
-//                    })
-//                }
-//                9 -> PermissionActivity.startPermissionActivity(this@PermissionActivity)
+                2 -> {
+                    PermissionKit.with().permission(Permission.ACCESS_BACKGROUND_LOCATION).request(this@PermissionActivity, object : IPermissionCallback {
+                        override fun onGranted(permissions: MutableList<String>?, all: Boolean) {
+                            toast("获取定位权限成功")
+                        }
+
+                        override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
+                        }
+
+                        override fun onProxyFinish() {
+                        }
+                    })
+                }
+                3 -> {
+                    val delayMillis = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                        toast("当前版本不是 Android 11 以上，会自动变更为旧版的请求方式")
+                        2000L
+                    } else {
+                        0L
+                    }
+                    postDelayed({
+                        //不适配 Android 11 可以这样写permission(Permission.Group.STORAGE)
+                        //适配 Android 11 需要这样写，这里无需再写 Permission.Group.STORAGE
+                        PermissionKit.with().permission(Permission.MANAGE_EXTERNAL_STORAGE).request(this@PermissionActivity, object : IPermissionCallback {
+                            override fun onGranted(permissions: MutableList<String>?, all: Boolean) {
+                                toast("获取存储权限成功")
+                            }
+
+                            override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
+                            }
+
+                            override fun onProxyFinish() {
+                            }
+                        })
+                    }, delayMillis)
+                }
+                4 -> {
+                    val delayMillis = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                        toast("当前版本不是 Android 11 以上，会自动变更为旧版的请求方式")
+                        2000L
+                    } else {
+                        0L
+                    }
+                    postDelayed({
+                        //不适配 Android 11 可以这样写permission(Permission.Group.STORAGE)
+                        //适配 Android 11 需要这样写，这里无需再写 Permission.Group.STORAGE
+                        PermissionKit.with().permission(Permission.Group.STORAGE).request(this@PermissionActivity, object : IPermissionCallback {
+                            override fun onGranted(permissions: MutableList<String>?, all: Boolean) {
+                                toast("获取存储权限成功")
+                            }
+
+                            override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
+                            }
+
+                            override fun onProxyFinish() {
+                            }
+                        })
+                    }, delayMillis)
+                }
+                5 -> {
+                    PermissionKit.with().permission(Permission.REQUEST_INSTALL_PACKAGES).request(this@PermissionActivity, object : IPermissionCallback {
+                        override fun onGranted(permissions: MutableList<String>?, all: Boolean) {
+                            toast("获取安装包权限成功")
+                        }
+
+                        override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
+                        }
+
+                        override fun onProxyFinish() {
+                        }
+                    })
+                }
+                6 -> {
+                    PermissionKit.with().permission(Permission.SYSTEM_ALERT_WINDOW).request(this@PermissionActivity, object : IPermissionCallback {
+                        override fun onGranted(permissions: MutableList<String>?, all: Boolean) {
+                            toast("获取悬浮窗权限成功")
+                        }
+
+                        override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
+                        }
+
+                        override fun onProxyFinish() {
+                        }
+                    })
+                }
+                7 -> {
+                    PermissionKit.with().permission(Permission.NOTIFICATION_SERVICE).request(this@PermissionActivity, object : IPermissionCallback {
+                        override fun onGranted(permissions: MutableList<String>?, all: Boolean) {
+                            toast("获取通知栏权限成功")
+                        }
+
+                        override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
+                        }
+
+                        override fun onProxyFinish() {
+                        }
+                    })
+                }
+                8 -> {
+                    PermissionKit.with().permission(Permission.WRITE_SETTINGS).request(this@PermissionActivity, object : IPermissionCallback {
+                        override fun onGranted(permissions: MutableList<String>?, all: Boolean) {
+                            toast("获取系统设置权限成功")
+                        }
+
+                        override fun onDenied(permissions: MutableList<String>?, never: Boolean) {
+                        }
+
+                        override fun onProxyFinish() {
+                        }
+                    })
+                }
+                9 -> PermissionKit.startPermissionActivity(this@PermissionActivity)
             }
         }
     }
