@@ -19,21 +19,11 @@ android {
     }
 
     buildFeatures {
-        buildConfig = false
+        buildConfig  false
     }
 
     lintOptions {
         abortOnError false
-    }
-
-    repositories {
-        flatDir {
-            dirs 'libs'
-        }
-    }
-
-    dexOptions {
-        preDexLibraries = false
     }
 
     //api23以上使用 httpClient

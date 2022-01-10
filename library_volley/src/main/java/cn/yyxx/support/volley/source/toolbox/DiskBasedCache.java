@@ -17,12 +17,7 @@
 package cn.yyxx.support.volley.source.toolbox;
 
 import android.os.SystemClock;
-import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
-
-import cn.yyxx.support.volley.source.Cache;
-import cn.yyxx.support.volley.source.Header;
-import cn.yyxx.support.volley.source.VolleyLog;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -36,12 +31,17 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import cn.yyxx.support.volley.source.Cache;
+import cn.yyxx.support.volley.source.Header;
+import cn.yyxx.support.volley.source.VolleyLog;
 
 /**
  * Cache implementation that caches files directly onto the hard disk in the specified directory.
@@ -52,48 +52,40 @@ import java.util.Map;
 public class DiskBasedCache implements Cache {
 
     /**
+     * Default maximum disk usage in bytes.
+     */
+    private static final int DEFAULT_DISK_USAGE_BYTES = 5 * 1024 * 1024;
+    /**
+     * High water mark percentage for the cache
+     */
+    private static final float HYSTERESIS_FACTOR = 0.9f;
+    /**
+     * Magic number for current version of cache file format.
+     */
+    private static final int CACHE_MAGIC = 0x20150306;
+    /**
      * Map of the Key, CacheHeader pairs
      */
-    private final Map<String, CacheHeader> mEntries = new LinkedHashMap<>(16, .75f, true);
-
+    private final Map<String, CacheHeader> mEntries =
+            new LinkedHashMap<String, CacheHeader>(16, .75f, true);
+    /**
+     * The root directory to use for the cache.
+     */
+    private final File mRootDirectory;
+    /**
+     * The maximum size of the cache in bytes.
+     */
+    private final int mMaxCacheSizeInBytes;
     /**
      * Total amount of space currently used by the cache in bytes.
      */
     private long mTotalSize = 0;
 
     /**
-     * The root directory to use for the cache.
-     */
-    private final File mRootDirectory;
-
-    /**
-     * The maximum size of the cache in bytes.
-     */
-    private final int mMaxCacheSizeInBytes;
-
-    /**
-     * Default maximum disk usage in bytes.
-     */
-    private static final int DEFAULT_DISK_USAGE_BYTES = 5 * 1024 * 1024;
-
-    /**
-     * High water mark percentage for the cache
-     */
-    @VisibleForTesting
-    static final float HYSTERESIS_FACTOR = 0.9f;
-
-    /**
-     * Magic number for current version of cache file format.
-     */
-    private static final int CACHE_MAGIC = 0x20150306;
-
-    /**
      * Constructs an instance of the DiskBasedCache at the specified directory.
      *
      * @param rootDirectory       The root directory of the cache.
-     * @param maxCacheSizeInBytes The maximum size of the cache in bytes. Note that the cache may
-     *                            briefly exceed this size on disk when writing a new entry that pushes it over the limit
-     *                            until the ensuing pruning completes.
+     * @param maxCacheSizeInBytes The maximum size of the cache in bytes.
      */
     public DiskBasedCache(File rootDirectory, int maxCacheSizeInBytes) {
         mRootDirectory = rootDirectory;
@@ -108,6 +100,116 @@ public class DiskBasedCache implements Cache {
      */
     public DiskBasedCache(File rootDirectory) {
         this(rootDirectory, DEFAULT_DISK_USAGE_BYTES);
+    }
+
+    /**
+     * Reads length bytes from CountingInputStream into byte array.
+     *
+     * @param cis    input stream
+     * @param length number of bytes to read
+     * @throws IOException if fails to read all bytes
+     */
+    // VisibleForTesting
+    static byte[] streamToBytes(CountingInputStream cis, long length) throws IOException {
+        long maxLength = cis.bytesRemaining();
+        // Length cannot be negative or greater than bytes remaining, and must not overflow int.
+        if (length < 0 || length > maxLength || (int) length != length) {
+            throw new IOException("streamToBytes length=" + length + ", maxLength=" + maxLength);
+        }
+        byte[] bytes = new byte[(int) length];
+        new DataInputStream(cis).readFully(bytes);
+        return bytes;
+    }
+
+    /**
+     * Simple wrapper around {@link InputStream#read()} that throws EOFException instead of
+     * returning -1.
+     */
+    private static int read(InputStream is) throws IOException {
+        int b = is.read();
+        if (b == -1) {
+            throw new EOFException();
+        }
+        return b;
+    }
+
+    static void writeInt(OutputStream os, int n) throws IOException {
+        os.write((n >> 0) & 0xff);
+        os.write((n >> 8) & 0xff);
+        os.write((n >> 16) & 0xff);
+        os.write((n >> 24) & 0xff);
+    }
+
+    static int readInt(InputStream is) throws IOException {
+        int n = 0;
+        n |= (read(is) << 0);
+        n |= (read(is) << 8);
+        n |= (read(is) << 16);
+        n |= (read(is) << 24);
+        return n;
+    }
+
+    static void writeLong(OutputStream os, long n) throws IOException {
+        os.write((byte) (n >>> 0));
+        os.write((byte) (n >>> 8));
+        os.write((byte) (n >>> 16));
+        os.write((byte) (n >>> 24));
+        os.write((byte) (n >>> 32));
+        os.write((byte) (n >>> 40));
+        os.write((byte) (n >>> 48));
+        os.write((byte) (n >>> 56));
+    }
+
+    static long readLong(InputStream is) throws IOException {
+        long n = 0;
+        n |= ((read(is) & 0xFFL) << 0);
+        n |= ((read(is) & 0xFFL) << 8);
+        n |= ((read(is) & 0xFFL) << 16);
+        n |= ((read(is) & 0xFFL) << 24);
+        n |= ((read(is) & 0xFFL) << 32);
+        n |= ((read(is) & 0xFFL) << 40);
+        n |= ((read(is) & 0xFFL) << 48);
+        n |= ((read(is) & 0xFFL) << 56);
+        return n;
+    }
+
+    static void writeString(OutputStream os, String s) throws IOException {
+        byte[] b = s.getBytes(StandardCharsets.UTF_8);
+        writeLong(os, b.length);
+        os.write(b, 0, b.length);
+    }
+
+    static String readString(CountingInputStream cis) throws IOException {
+        long n = readLong(cis);
+        byte[] b = streamToBytes(cis, n);
+        return new String(b, StandardCharsets.UTF_8);
+    }
+
+    static void writeHeaderList(List<Header> headers, OutputStream os) throws IOException {
+        if (headers != null) {
+            writeInt(os, headers.size());
+            for (Header header : headers) {
+                writeString(os, header.getName());
+                writeString(os, header.getValue());
+            }
+        } else {
+            writeInt(os, 0);
+        }
+    }
+
+    static List<Header> readHeaderList(CountingInputStream cis) throws IOException {
+        int size = readInt(cis);
+        if (size < 0) {
+            throw new IOException("readHeaderList size=" + size);
+        }
+        List<Header> result =
+                (size == 0) ? Collections.<Header>emptyList() : new ArrayList<Header>();
+        for (int i = 0; i < size; i++) {
+            String name = readString(cis).intern();
+            String value = readString(cis).intern();
+            result.add(new Header(name, value));
+        }
+        return result;
     }
 
     /**
@@ -189,6 +291,8 @@ public class DiskBasedCache implements Cache {
                                 new BufferedInputStream(createInputStream(file)), entrySize);
                 try {
                     CacheHeader entry = CacheHeader.readHeader(cis);
+                    // NOTE: When this entry was put, its size was recorded as data.length, but
+                    // when the entry is initialized below, its size is recorded as file.length()
                     entry.size = entrySize;
                     putEntry(entry.key, entry);
                 } finally {
@@ -226,14 +330,7 @@ public class DiskBasedCache implements Cache {
      */
     @Override
     public synchronized void put(String key, Entry entry) {
-        // If adding this entry would trigger a prune, but pruning would cause the new entry to be
-        // deleted, then skip writing the entry in the first place, as this is just churn.
-        // Note that we don't include the cache header overhead in this calculation for simplicity,
-        // so putting entries which are just below the threshold may still cause this churn.
-        if (mTotalSize + entry.data.length > mMaxCacheSizeInBytes
-                && entry.data.length > mMaxCacheSizeInBytes * HYSTERESIS_FACTOR) {
-            return;
-        }
+        pruneIfNeeded(entry.data.length);
         File file = getFileForKey(key);
         try {
             BufferedOutputStream fos = new BufferedOutputStream(createOutputStream(file));
@@ -246,9 +343,7 @@ public class DiskBasedCache implements Cache {
             }
             fos.write(entry.data);
             fos.close();
-            e.size = file.length();
             putEntry(key, e);
-            pruneIfNeeded();
             return;
         } catch (IOException e) {
         }
@@ -272,6 +367,15 @@ public class DiskBasedCache implements Cache {
         }
     }
 
+    /*
+     * Homebrewed simple serialization system used for reading and writing cache
+     * headers on disk. Once upon a time, this used the standard Java
+     * Object{Input,Output}Stream, but the default implementation relies heavily
+     * on reflection (even for standard types) and generates a ton of garbage.
+     *
+     * TODO: Replace by standard DataInput and DataOutput in next cache version.
+     */
+
     /**
      * Creates a pseudo-unique filename for the specified cache key.
      *
@@ -293,10 +397,12 @@ public class DiskBasedCache implements Cache {
     }
 
     /**
-     * Prunes the cache to fit the maximum size.
+     * Prunes the cache to fit the amount of bytes specified.
+     *
+     * @param neededSpace The amount of bytes we are trying to fit into the cache.
      */
-    private void pruneIfNeeded() {
-        if (mTotalSize < mMaxCacheSizeInBytes) {
+    private void pruneIfNeeded(int neededSpace) {
+        if ((mTotalSize + neededSpace) < mMaxCacheSizeInBytes) {
             return;
         }
         if (VolleyLog.DEBUG) {
@@ -322,7 +428,7 @@ public class DiskBasedCache implements Cache {
             iterator.remove();
             prunedFiles++;
 
-            if (mTotalSize < mMaxCacheSizeInBytes * HYSTERESIS_FACTOR) {
+            if ((mTotalSize + neededSpace) < mMaxCacheSizeInBytes * HYSTERESIS_FACTOR) {
                 break;
             }
         }
@@ -360,31 +466,12 @@ public class DiskBasedCache implements Cache {
         }
     }
 
-    /**
-     * Reads length bytes from CountingInputStream into byte array.
-     *
-     * @param cis    input stream
-     * @param length number of bytes to read
-     * @throws IOException if fails to read all bytes
-     */
-    @VisibleForTesting
-    static byte[] streamToBytes(CountingInputStream cis, long length) throws IOException {
-        long maxLength = cis.bytesRemaining();
-        // Length cannot be negative or greater than bytes remaining, and must not overflow int.
-        if (length < 0 || length > maxLength || (int) length != length) {
-            throw new IOException("streamToBytes length=" + length + ", maxLength=" + maxLength);
-        }
-        byte[] bytes = new byte[(int) length];
-        new DataInputStream(cis).readFully(bytes);
-        return bytes;
-    }
-
-    @VisibleForTesting
+    // VisibleForTesting
     InputStream createInputStream(File file) throws FileNotFoundException {
         return new FileInputStream(file);
     }
 
-    @VisibleForTesting
+    // VisibleForTesting
     OutputStream createOutputStream(File file) throws FileNotFoundException {
         return new FileOutputStream(file);
     }
@@ -392,51 +479,40 @@ public class DiskBasedCache implements Cache {
     /**
      * Handles holding onto the cache headers for an entry.
      */
-    @VisibleForTesting
+    // VisibleForTesting
     static class CacheHeader {
-        /**
-         * The size of the data identified by this CacheHeader on disk (both header and data).
-         *
-         * <p>Must be set by the caller after it has been calculated.
-         *
-         * <p>This is not serialized to disk.
-         */
-        long size;
-
         /**
          * The key that identifies the cache entry.
          */
         final String key;
-
         /**
          * ETag for cache coherence.
          */
         final String etag;
-
         /**
          * Date of this response as reported by the server.
          */
         final long serverDate;
-
         /**
          * The last modified date for the requested object.
          */
         final long lastModified;
-
         /**
          * TTL for this record.
          */
         final long ttl;
-
         /**
          * Soft TTL for this record.
          */
         final long softTtl;
-
         /**
          * Headers from the response resulting in this cache entry.
          */
         final List<Header> allResponseHeaders;
+        /**
+         * The size of the data identified by this CacheHeader. (This is not serialized to disk.
+         */
+        long size;
 
         private CacheHeader(
                 String key,
@@ -447,7 +523,7 @@ public class DiskBasedCache implements Cache {
                 long softTtl,
                 List<Header> allResponseHeaders) {
             this.key = key;
-            this.etag = "".equals(etag) ? null : etag;
+            this.etag = ("".equals(etag)) ? null : etag;
             this.serverDate = serverDate;
             this.lastModified = lastModified;
             this.ttl = ttl;
@@ -470,6 +546,7 @@ public class DiskBasedCache implements Cache {
                     entry.ttl,
                     entry.softTtl,
                     getAllResponseHeaders(entry));
+            size = entry.data.length;
         }
 
         private static List<Header> getAllResponseHeaders(Entry entry) {
@@ -543,7 +620,7 @@ public class DiskBasedCache implements Cache {
         }
     }
 
-    @VisibleForTesting
+    // VisibleForTesting
     static class CountingInputStream extends FilterInputStream {
         private final long length;
         private long bytesRead;
@@ -571,7 +648,7 @@ public class DiskBasedCache implements Cache {
             return result;
         }
 
-        @VisibleForTesting
+        // VisibleForTesting
         long bytesRead() {
             return bytesRead;
         }
@@ -579,105 +656,5 @@ public class DiskBasedCache implements Cache {
         long bytesRemaining() {
             return length - bytesRead;
         }
-    }
-
-    /*
-     * Homebrewed simple serialization system used for reading and writing cache
-     * headers on disk. Once upon a time, this used the standard Java
-     * Object{Input,Output}Stream, but the default implementation relies heavily
-     * on reflection (even for standard types) and generates a ton of garbage.
-     *
-     * TODO: Replace by standard DataInput and DataOutput in next cache version.
-     */
-
-    /**
-     * Simple wrapper around {@link InputStream#read()} that throws EOFException instead of
-     * returning -1.
-     */
-    private static int read(InputStream is) throws IOException {
-        int b = is.read();
-        if (b == -1) {
-            throw new EOFException();
-        }
-        return b;
-    }
-
-    static void writeInt(OutputStream os, int n) throws IOException {
-        os.write((n >> 0) & 0xff);
-        os.write((n >> 8) & 0xff);
-        os.write((n >> 16) & 0xff);
-        os.write((n >> 24) & 0xff);
-    }
-
-    static int readInt(InputStream is) throws IOException {
-        int n = 0;
-        n |= (read(is) << 0);
-        n |= (read(is) << 8);
-        n |= (read(is) << 16);
-        n |= (read(is) << 24);
-        return n;
-    }
-
-    static void writeLong(OutputStream os, long n) throws IOException {
-        os.write((byte) (n >>> 0));
-        os.write((byte) (n >>> 8));
-        os.write((byte) (n >>> 16));
-        os.write((byte) (n >>> 24));
-        os.write((byte) (n >>> 32));
-        os.write((byte) (n >>> 40));
-        os.write((byte) (n >>> 48));
-        os.write((byte) (n >>> 56));
-    }
-
-    static long readLong(InputStream is) throws IOException {
-        long n = 0;
-        n |= ((read(is) & 0xFFL) << 0);
-        n |= ((read(is) & 0xFFL) << 8);
-        n |= ((read(is) & 0xFFL) << 16);
-        n |= ((read(is) & 0xFFL) << 24);
-        n |= ((read(is) & 0xFFL) << 32);
-        n |= ((read(is) & 0xFFL) << 40);
-        n |= ((read(is) & 0xFFL) << 48);
-        n |= ((read(is) & 0xFFL) << 56);
-        return n;
-    }
-
-    static void writeString(OutputStream os, String s) throws IOException {
-        byte[] b = s.getBytes("UTF-8");
-        writeLong(os, b.length);
-        os.write(b, 0, b.length);
-    }
-
-    static String readString(CountingInputStream cis) throws IOException {
-        long n = readLong(cis);
-        byte[] b = streamToBytes(cis, n);
-        return new String(b, "UTF-8");
-    }
-
-    static void writeHeaderList(List<Header> headers, OutputStream os) throws IOException {
-        if (headers != null) {
-            writeInt(os, headers.size());
-            for (Header header : headers) {
-                writeString(os, header.getName());
-                writeString(os, header.getValue());
-            }
-        } else {
-            writeInt(os, 0);
-        }
-    }
-
-    static List<Header> readHeaderList(CountingInputStream cis) throws IOException {
-        int size = readInt(cis);
-        if (size < 0) {
-            throw new IOException("readHeaderList size=" + size);
-        }
-        List<Header> result =
-                (size == 0) ? Collections.<Header>emptyList() : new ArrayList<Header>();
-        for (int i = 0; i < size; i++) {
-            String name = readString(cis).intern();
-            String value = readString(cis).intern();
-            result.add(new Header(name, value));
-        }
-        return result;
     }
 }

@@ -22,10 +22,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
 
+import java.io.File;
+
 import cn.yyxx.support.volley.source.Network;
 import cn.yyxx.support.volley.source.RequestQueue;
-
-import java.io.File;
 
 public class Volley {
 
@@ -54,13 +54,14 @@ public class Volley {
                 String userAgent = "volley/0";
                 try {
                     String packageName = context.getPackageName();
-                    PackageInfo info = context.getPackageManager().getPackageInfo(packageName, /* flags= */ 0);
+                    PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
                     userAgent = packageName + "/" + info.versionCode;
                 } catch (NameNotFoundException e) {
-                    e.printStackTrace();
                 }
 
-                network = new BasicNetwork(new HttpClientStack(AndroidHttpClient.newInstance(userAgent)));
+                network =
+                        new BasicNetwork(
+                                new HttpClientStack(AndroidHttpClient.newInstance(userAgent)));
             }
         } else {
             network = new BasicNetwork(stack);

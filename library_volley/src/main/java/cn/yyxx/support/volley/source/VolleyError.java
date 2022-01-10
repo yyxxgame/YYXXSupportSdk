@@ -47,12 +47,11 @@ public class VolleyError extends Exception {
         networkResponse = null;
     }
 
-    /* package */
-    void setNetworkTimeMs(long networkTimeMs) {
-        this.networkTimeMs = networkTimeMs;
-    }
-
     public long getNetworkTimeMs() {
         return networkTimeMs;
+    }
+
+    /* package */ void setNetworkTimeMs(long networkTimeMs) {
+        this.networkTimeMs = networkTimeMs;
     }
 }

@@ -19,9 +19,6 @@ package cn.yyxx.support.volley.source.toolbox;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
-import android.support.annotation.GuardedBy;
-import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 import android.widget.ImageView.ScaleType;
 
 import cn.yyxx.support.volley.source.DefaultRetryPolicy;
@@ -49,25 +46,20 @@ public class ImageRequest extends Request<Bitmap> {
      * Default backoff multiplier for image requests
      */
     public static final float DEFAULT_IMAGE_BACKOFF_MULT = 2f;
-
-    /**
-     * Lock to guard mListener as it is cleared on cancel() and read on delivery.
-     */
-    private final Object mLock = new Object();
-
-    @GuardedBy("mLock")
-    @Nullable
-    private Response.Listener<Bitmap> mListener;
-
-    private final Config mDecodeConfig;
-    private final int mMaxWidth;
-    private final int mMaxHeight;
-    private final ScaleType mScaleType;
-
     /**
      * Decoding lock so that we don't decode more than one image at a time (to avoid OOM's)
      */
     private static final Object sDecodeLock = new Object();
+    /**
+     * Lock to guard mListener as it is cleared on cancel() and read on delivery.
+     */
+    private final Object mLock = new Object();
+    private final Config mDecodeConfig;
+    private final int mMaxWidth;
+    private final int mMaxHeight;
+    private final ScaleType mScaleType;
+    // @GuardedBy("mLock")
+    private Response.Listener<Bitmap> mListener;
 
     /**
      * Creates a new image request, decoding to a maximum specified width and height. If both width
@@ -91,7 +83,7 @@ public class ImageRequest extends Request<Bitmap> {
             int maxHeight,
             ScaleType scaleType,
             Config decodeConfig,
-            @Nullable Response.ErrorListener errorListener) {
+            Response.ErrorListener errorListener) {
         super(Method.GET, url, errorListener);
         setRetryPolicy(
                 new DefaultRetryPolicy(
@@ -125,11 +117,6 @@ public class ImageRequest extends Request<Bitmap> {
                 ScaleType.CENTER_INSIDE,
                 decodeConfig,
                 errorListener);
-    }
-
-    @Override
-    public Priority getPriority() {
-        return Priority.LOW;
     }
 
     /**
@@ -188,6 +175,34 @@ public class ImageRequest extends Request<Bitmap> {
             resized = (int) (maxSecondary / ratio);
         }
         return resized;
+    }
+
+    /**
+     * Returns the largest power-of-two divisor for use in downscaling a bitmap that will not result
+     * in the scaling past the desired dimensions.
+     *
+     * @param actualWidth   Actual width of the bitmap
+     * @param actualHeight  Actual height of the bitmap
+     * @param desiredWidth  Desired width of the bitmap
+     * @param desiredHeight Desired height of the bitmap
+     */
+    // Visible for testing.
+    static int findBestSampleSize(
+            int actualWidth, int actualHeight, int desiredWidth, int desiredHeight) {
+        double wr = (double) actualWidth / desiredWidth;
+        double hr = (double) actualHeight / desiredHeight;
+        double ratio = Math.min(wr, hr);
+        float n = 1.0f;
+        while ((n * 2) <= ratio) {
+            n *= 2;
+        }
+
+        return (int) n;
+    }
+
+    @Override
+    public Priority getPriority() {
+        return Priority.LOW;
     }
 
     @Override
@@ -271,28 +286,5 @@ public class ImageRequest extends Request<Bitmap> {
         if (listener != null) {
             listener.onResponse(response);
         }
-    }
-
-    /**
-     * Returns the largest power-of-two divisor for use in downscaling a bitmap that will not result
-     * in the scaling past the desired dimensions.
-     *
-     * @param actualWidth   Actual width of the bitmap
-     * @param actualHeight  Actual height of the bitmap
-     * @param desiredWidth  Desired width of the bitmap
-     * @param desiredHeight Desired height of the bitmap
-     */
-    @VisibleForTesting
-    static int findBestSampleSize(
-            int actualWidth, int actualHeight, int desiredWidth, int desiredHeight) {
-        double wr = (double) actualWidth / desiredWidth;
-        double hr = (double) actualHeight / desiredHeight;
-        double ratio = Math.min(wr, hr);
-        float n = 1.0f;
-        while ((n * 2) <= ratio) {
-            n *= 2;
-        }
-
-        return (int) n;
     }
 }

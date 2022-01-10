@@ -29,6 +29,37 @@ import java.util.TreeMap;
 public class NetworkResponse {
 
     /**
+     * The HTTP status code.
+     */
+    public final int statusCode;
+    /**
+     * Raw data from this response.
+     */
+    public final byte[] data;
+    /**
+     * Response headers.
+     *
+     * <p>This map is case-insensitive. It should not be mutated directly.
+     *
+     * <p>Note that if the server returns two headers with the same (case-insensitive) name, this
+     * map will only contain the last one. Use {@link #allHeaders} to inspect all headers returned
+     * by the server.
+     */
+    public final Map<String, String> headers;
+    /**
+     * All response headers. Must not be mutated directly.
+     */
+    public final List<Header> allHeaders;
+    /**
+     * True if the server returned a 304 (Not Modified).
+     */
+    public final boolean notModified;
+    /**
+     * Network roundtrip time in milliseconds.
+     */
+    public final long networkTimeMs;
+
+    /**
      * Creates a new network response.
      *
      * @param statusCode    the HTTP status code
@@ -82,7 +113,7 @@ public class NetworkResponse {
     @Deprecated
     public NetworkResponse(
             int statusCode, byte[] data, Map<String, String> headers, boolean notModified) {
-        this(statusCode, data, headers, notModified, /* networkTimeMs= */ 0);
+        this(statusCode, data, headers, notModified, 0);
     }
 
     /**
@@ -91,12 +122,7 @@ public class NetworkResponse {
      * @param data Response body
      */
     public NetworkResponse(byte[] data) {
-        this(
-                HttpURLConnection.HTTP_OK,
-                data,
-                /* notModified= */ false,
-                /* networkTimeMs= */ 0,
-                Collections.<Header>emptyList());
+        this(HttpURLConnection.HTTP_OK, data, false, 0, Collections.<Header>emptyList());
     }
 
     /**
@@ -110,12 +136,7 @@ public class NetworkResponse {
      */
     @Deprecated
     public NetworkResponse(byte[] data, Map<String, String> headers) {
-        this(
-                HttpURLConnection.HTTP_OK,
-                data,
-                headers,
-                /* notModified= */ false,
-                /* networkTimeMs= */ 0);
+        this(HttpURLConnection.HTTP_OK, data, headers, false, 0);
     }
 
     private NetworkResponse(
@@ -136,42 +157,6 @@ public class NetworkResponse {
         this.notModified = notModified;
         this.networkTimeMs = networkTimeMs;
     }
-
-    /**
-     * The HTTP status code.
-     */
-    public final int statusCode;
-
-    /**
-     * Raw data from this response.
-     */
-    public final byte[] data;
-
-    /**
-     * Response headers.
-     *
-     * <p>This map is case-insensitive. It should not be mutated directly.
-     *
-     * <p>Note that if the server returns two headers with the same (case-insensitive) name, this
-     * map will only contain the last one. Use {@link #allHeaders} to inspect all headers returned
-     * by the server.
-     */
-    public final Map<String, String> headers;
-
-    /**
-     * All response headers. Must not be mutated directly.
-     */
-    public final List<Header> allHeaders;
-
-    /**
-     * True if the server returned a 304 (Not Modified).
-     */
-    public final boolean notModified;
-
-    /**
-     * Network roundtrip time in milliseconds.
-     */
-    public final long networkTimeMs;
 
     private static Map<String, String> toHeaderMap(List<Header> allHeaders) {
         if (allHeaders == null) {

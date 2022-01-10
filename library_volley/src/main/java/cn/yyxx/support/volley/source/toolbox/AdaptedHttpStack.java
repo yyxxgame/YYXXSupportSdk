@@ -15,10 +15,6 @@
  */
 package cn.yyxx.support.volley.source.toolbox;
 
-import cn.yyxx.support.volley.source.AuthFailureError;
-import cn.yyxx.support.volley.source.Header;
-import cn.yyxx.support.volley.source.Request;
-
 import org.apache.http.conn.ConnectTimeoutException;
 
 import java.io.IOException;
@@ -26,6 +22,10 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import cn.yyxx.support.volley.source.AuthFailureError;
+import cn.yyxx.support.volley.source.Header;
+import cn.yyxx.support.volley.source.Request;
 
 /**
  * {@link BaseHttpStack} implementation wrapping a {@link HttpStack}.

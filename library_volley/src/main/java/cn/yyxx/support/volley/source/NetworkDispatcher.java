@@ -21,7 +21,6 @@ import android.net.TrafficStats;
 import android.os.Build;
 import android.os.Process;
 import android.os.SystemClock;
-import android.support.annotation.VisibleForTesting;
 
 import java.util.concurrent.BlockingQueue;
 
@@ -102,12 +101,8 @@ public class NetworkDispatcher extends Thread {
             } catch (InterruptedException e) {
                 // We may have been interrupted because it was time to quit.
                 if (mQuit) {
-                    Thread.currentThread().interrupt();
                     return;
                 }
-                VolleyLog.e(
-                        "Ignoring spurious interrupt of NetworkDispatcher thread; "
-                                + "use quit() to terminate it");
             }
         }
     }
@@ -119,13 +114,8 @@ public class NetworkDispatcher extends Thread {
     private void processRequest() throws InterruptedException {
         // Take a request from the queue.
         Request<?> request = mQueue.take();
-        processRequest(request);
-    }
 
-    @VisibleForTesting
-    void processRequest(Request<?> request) {
         long startTimeMs = SystemClock.elapsedRealtime();
-        request.sendEvent(RequestQueue.RequestEvent.REQUEST_NETWORK_DISPATCH_STARTED);
         try {
             request.addMarker("network-queue-take");
 
@@ -176,8 +166,6 @@ public class NetworkDispatcher extends Thread {
             volleyError.setNetworkTimeMs(SystemClock.elapsedRealtime() - startTimeMs);
             mDelivery.postError(request, volleyError);
             request.notifyListenerResponseNotUsable();
-        } finally {
-            request.sendEvent(RequestQueue.RequestEvent.REQUEST_NETWORK_DISPATCH_FINISHED);
         }
     }
 

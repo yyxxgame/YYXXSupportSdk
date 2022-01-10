@@ -16,16 +16,13 @@
 
 package cn.yyxx.support.volley.source.toolbox;
 
-import android.support.annotation.GuardedBy;
-import android.support.annotation.Nullable;
+import java.io.UnsupportedEncodingException;
 
 import cn.yyxx.support.volley.source.NetworkResponse;
 import cn.yyxx.support.volley.source.Request;
 import cn.yyxx.support.volley.source.Response;
 import cn.yyxx.support.volley.source.Response.ErrorListener;
 import cn.yyxx.support.volley.source.Response.Listener;
-
-import java.io.UnsupportedEncodingException;
 
 /**
  * A canned request for retrieving the response body at a given URL as a String.
@@ -37,8 +34,7 @@ public class StringRequest extends Request<String> {
      */
     private final Object mLock = new Object();
 
-    @Nullable
-    @GuardedBy("mLock")
+    // @GuardedBy("mLock")
     private Listener<String> mListener;
 
     /**
@@ -50,10 +46,7 @@ public class StringRequest extends Request<String> {
      * @param errorListener Error listener, or null to ignore errors
      */
     public StringRequest(
-            int method,
-            String url,
-            Listener<String> listener,
-            @Nullable ErrorListener errorListener) {
+            int method, String url, Listener<String> listener, ErrorListener errorListener) {
         super(method, url, errorListener);
         mListener = listener;
     }
@@ -65,8 +58,7 @@ public class StringRequest extends Request<String> {
      * @param listener      Listener to receive the String response
      * @param errorListener Error listener, or null to ignore errors
      */
-    public StringRequest(
-            String url, Listener<String> listener, @Nullable ErrorListener errorListener) {
+    public StringRequest(String url, Listener<String> listener, ErrorListener errorListener) {
         this(Method.GET, url, listener, errorListener);
     }
 

@@ -30,15 +30,13 @@ import java.util.Locale;
  * {@code <android-sdk>/platform-tools/adb shell setprop log.tag.Volley VERBOSE}
  */
 public class VolleyLog {
-    public static String TAG = "Volley";
-
-    public static boolean DEBUG = Log.isLoggable(TAG, Log.VERBOSE);
-
     /**
      * {@link Class#getName()} uses reflection and calling it on a potentially hot code path may
      * have some cost. To minimize this cost we fetch class name once here and use it later.
      */
     private static final String CLASS_NAME = VolleyLog.class.getName();
+    public static String TAG = "Volley";
+    public static boolean DEBUG = Log.isLoggable(TAG, Log.VERBOSE);
 
     /**
      * Customize the log tag for your application, so that other apps using Volley don't mix their
@@ -115,20 +113,7 @@ public class VolleyLog {
          * Minimum duration from first marker to last in an marker log to warrant logging.
          */
         private static final long MIN_DURATION_FOR_LOGGING_MS = 0;
-
-        private static class Marker {
-            public final String name;
-            public final long thread;
-            public final long time;
-
-            public Marker(String name, long thread, long time) {
-                this.name = name;
-                this.thread = thread;
-                this.time = time;
-            }
-        }
-
-        private final List<Marker> mMarkers = new ArrayList<>();
+        private final List<Marker> mMarkers = new ArrayList<Marker>();
         private boolean mFinished = false;
 
         /**
@@ -186,6 +171,18 @@ public class VolleyLog {
             long first = mMarkers.get(0).time;
             long last = mMarkers.get(mMarkers.size() - 1).time;
             return last - first;
+        }
+
+        private static class Marker {
+            public final String name;
+            public final long thread;
+            public final long time;
+
+            public Marker(String name, long thread, long time) {
+                this.name = name;
+                this.thread = thread;
+                this.time = time;
+            }
         }
     }
 }

@@ -35,6 +35,10 @@ public class PermissionKitActivity extends FragmentActivity {
     }
 
     public static void finish(Context context) {
+        if (mCallback != null) {
+            mCallback.onProxyFinish();
+        }
+
         if (context instanceof PermissionKitActivity) {
             ((PermissionKitActivity) context).finish();
         }
@@ -51,7 +55,6 @@ public class PermissionKitActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        LogUtils.d("onDestroy");
         if (mPermissions != null) {
             mPermissions.clear();
             mPermissions = null;
@@ -62,7 +65,6 @@ public class PermissionKitActivity extends FragmentActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        LogUtils.d("onActivityResult");
         if (requestCode == PermissionKit.REQUEST_CODE && !isFinishing()) {
             if (mCallback != null) {
                 mCallback.onProxyFinish();
@@ -115,9 +117,7 @@ public class PermissionKitActivity extends FragmentActivity {
         if (PermissionUtils.isGrantedPermissions(this, permissions)) {
             // 证明这些权限已经全部授予过，直接回调成功
             if (mCallback != null) {
-                LogUtils.d("证明这些权限已经全部授予过，直接回调成功");
-                mCallback.onGranted(mPermissions, true);
-                activity.finish();
+                PermissionKit.getInterceptor().grantedPermissions(activity, mPermissions, true, mCallback);
             }
             return;
         }

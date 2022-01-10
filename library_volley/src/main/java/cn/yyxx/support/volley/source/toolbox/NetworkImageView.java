@@ -14,9 +14,6 @@
 package cn.yyxx.support.volley.source.toolbox;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.support.annotation.MainThread;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
@@ -36,30 +33,14 @@ public class NetworkImageView extends ImageView {
     private String mUrl;
 
     /**
-     * Resource ID of the image to be used as a placeholder until the network image is loaded. Won't
-     * be set at the same time as mDefaultImageBitmap.
+     * Resource ID of the image to be used as a placeholder until the network image is loaded.
      */
     private int mDefaultImageId;
 
     /**
-     * Bitmap of the image to be used as a placeholder until the network image is loaded. Won't be
-     * set at the same time as mDefaultImageId.
-     */
-    @Nullable
-    Bitmap mDefaultImageBitmap;
-
-    /**
-     * Resource ID of the image to be used if the network response fails. Won't be set at the same
-     * time as mErrorImageBitmap.
+     * Resource ID of the image to be used if the network response fails.
      */
     private int mErrorImageId;
-
-    /**
-     * Bitmap of the image to be used if the network response fails. Won't be set at the same time
-     * as mErrorImageId.
-     */
-    @Nullable
-    private Bitmap mErrorImageBitmap;
 
     /**
      * Local copy of the ImageLoader.
@@ -88,67 +69,33 @@ public class NetworkImageView extends ImageView {
      * immediately either set the cached image (if available) or the default image specified by
      * {@link NetworkImageView#setDefaultImageResId(int)} on the view.
      *
-     * <p>NOTE: If applicable, {@link NetworkImageView#setDefaultImageResId(int)} or {@link
-     * NetworkImageView#setDefaultImageBitmap} and {@link NetworkImageView#setErrorImageResId(int)}
-     * or {@link NetworkImageView#setErrorImageBitmap(Bitmap)} should be called prior to calling
-     * this function.
-     *
-     * <p>Must be called from the main thread.
+     * <p>NOTE: If applicable, {@link NetworkImageView#setDefaultImageResId(int)} and {@link
+     * NetworkImageView#setErrorImageResId(int)} should be called prior to calling this function.
      *
      * @param url         The URL that should be loaded into this ImageView.
      * @param imageLoader ImageLoader that will be used to make the request.
      */
-    @MainThread
     public void setImageUrl(String url, ImageLoader imageLoader) {
-        Threads.throwIfNotOnMainThread();
         mUrl = url;
         mImageLoader = imageLoader;
         // The URL has potentially changed. See if we need to load it.
-        loadImageIfNecessary(/* isInLayoutPass= */ false);
+        loadImageIfNecessary(false);
     }
 
     /**
      * Sets the default image resource ID to be used for this view until the attempt to load it
      * completes.
-     *
-     * <p>This will clear anything set by {@link NetworkImageView#setDefaultImageBitmap}.
      */
     public void setDefaultImageResId(int defaultImage) {
-        mDefaultImageBitmap = null;
         mDefaultImageId = defaultImage;
-    }
-
-    /**
-     * Sets the default image bitmap to be used for this view until the attempt to load it
-     * completes.
-     *
-     * <p>This will clear anything set by {@link NetworkImageView#setDefaultImageResId}.
-     */
-    public void setDefaultImageBitmap(Bitmap defaultImage) {
-        mDefaultImageId = 0;
-        mDefaultImageBitmap = defaultImage;
     }
 
     /**
      * Sets the error image resource ID to be used for this view in the event that the image
      * requested fails to load.
-     *
-     * <p>This will clear anything set by {@link NetworkImageView#setErrorImageBitmap}.
      */
     public void setErrorImageResId(int errorImage) {
-        mErrorImageBitmap = null;
         mErrorImageId = errorImage;
-    }
-
-    /**
-     * Sets the error image bitmap to be used for this view in the event that the image requested
-     * fails to load.
-     *
-     * <p>This will clear anything set by {@link NetworkImageView#setErrorImageResId}.
-     */
-    public void setErrorImageBitmap(Bitmap errorImage) {
-        mErrorImageId = 0;
-        mErrorImageBitmap = errorImage;
     }
 
     /**
@@ -213,8 +160,6 @@ public class NetworkImageView extends ImageView {
                             public void onErrorResponse(VolleyError error) {
                                 if (mErrorImageId != 0) {
                                     setImageResource(mErrorImageId);
-                                } else if (mErrorImageBitmap != null) {
-                                    setImageBitmap(mErrorImageBitmap);
                                 }
                             }
 
@@ -233,7 +178,7 @@ public class NetworkImageView extends ImageView {
                                             new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    onResponse(response, /* isImmediate= */ false);
+                                                    onResponse(response, false);
                                                 }
                                             });
                                     return;
@@ -243,8 +188,6 @@ public class NetworkImageView extends ImageView {
                                     setImageBitmap(response.getBitmap());
                                 } else if (mDefaultImageId != 0) {
                                     setImageResource(mDefaultImageId);
-                                } else if (mDefaultImageBitmap != null) {
-                                    setImageBitmap(mDefaultImageBitmap);
                                 }
                             }
                         },
@@ -256,8 +199,6 @@ public class NetworkImageView extends ImageView {
     private void setDefaultImageOrNull() {
         if (mDefaultImageId != 0) {
             setImageResource(mDefaultImageId);
-        } else if (mDefaultImageBitmap != null) {
-            setImageBitmap(mDefaultImageBitmap);
         } else {
             setImageBitmap(null);
         }
@@ -266,7 +207,7 @@ public class NetworkImageView extends ImageView {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        loadImageIfNecessary(/* isInLayoutPass= */ true);
+        loadImageIfNecessary(true);
     }
 
     @Override

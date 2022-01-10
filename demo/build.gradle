@@ -51,16 +51,6 @@ android {
         abortOnError false
     }
 
-    repositories {
-        flatDir {
-            dirs 'libs'
-        }
-    }
-
-    dexOptions {
-        preDexLibraries = false
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

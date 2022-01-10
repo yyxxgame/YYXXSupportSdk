@@ -15,11 +15,11 @@
  */
 package cn.yyxx.support.volley.source.toolbox;
 
-import cn.yyxx.support.volley.source.Header;
-
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+
+import cn.yyxx.support.volley.source.Header;
 
 /**
  * A response from an HTTP server.
@@ -38,7 +38,7 @@ public final class HttpResponse {
      * @param headers    the response headers
      */
     public HttpResponse(int statusCode, List<Header> headers) {
-        this(statusCode, headers, /* contentLength= */ -1, /* content= */ null);
+        this(statusCode, headers, -1 /* contentLength */, null /* content */);
     }
 
     /**

@@ -15,10 +15,6 @@
  */
 package cn.yyxx.support.volley.source.toolbox;
 
-import cn.yyxx.support.volley.source.AuthFailureError;
-import cn.yyxx.support.volley.source.Header;
-import cn.yyxx.support.volley.source.Request;
-
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.entity.BasicHttpEntity;
@@ -33,11 +29,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.yyxx.support.volley.source.AuthFailureError;
+import cn.yyxx.support.volley.source.Header;
+import cn.yyxx.support.volley.source.Request;
+
 /**
  * An HTTP stack abstraction.
  */
-@SuppressWarnings("deprecation")
-// for HttpStack
+@SuppressWarnings("deprecation") // for HttpStack
 public abstract class BaseHttpStack implements HttpStack {
 
     /**
@@ -67,19 +66,22 @@ public abstract class BaseHttpStack implements HttpStack {
      */
     @Deprecated
     @Override
-    public final org.apache.http.HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders)
+    public final org.apache.http.HttpResponse performRequest(
+            Request<?> request, Map<String, String> additionalHeaders)
             throws IOException, AuthFailureError {
         HttpResponse response = executeRequest(request, additionalHeaders);
 
         ProtocolVersion protocolVersion = new ProtocolVersion("HTTP", 1, 1);
-        StatusLine statusLine = new BasicStatusLine(protocolVersion, response.getStatusCode(), /* reasonPhrase= */ "");
+        StatusLine statusLine =
+                new BasicStatusLine(
+                        protocolVersion, response.getStatusCode(), "" /* reasonPhrase */);
         BasicHttpResponse apacheResponse = new BasicHttpResponse(statusLine);
 
         List<org.apache.http.Header> headers = new ArrayList<>();
         for (Header header : response.getHeaders()) {
             headers.add(new BasicHeader(header.getName(), header.getValue()));
         }
-        apacheResponse.setHeaders(headers.toArray(new org.apache.http.Header[0]));
+        apacheResponse.setHeaders(headers.toArray(new org.apache.http.Header[headers.size()]));
 
         InputStream responseStream = response.getContent();
         if (responseStream != null) {

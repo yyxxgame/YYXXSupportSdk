@@ -16,13 +16,13 @@
 
 package cn.yyxx.support.volley.source.toolbox;
 
-import cn.yyxx.support.volley.source.AuthFailureError;
-import cn.yyxx.support.volley.source.Request;
-
 import org.apache.http.HttpResponse;
 
 import java.io.IOException;
 import java.util.Map;
+
+import cn.yyxx.support.volley.source.AuthFailureError;
+import cn.yyxx.support.volley.source.Request;
 
 /**
  * An HTTP stack abstraction.
@@ -44,5 +44,6 @@ public interface HttpStack {
      *                          Request#getHeaders()}
      * @return the HTTP response
      */
-    HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders) throws IOException, AuthFailureError;
+    HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders)
+            throws IOException, AuthFailureError;
 }

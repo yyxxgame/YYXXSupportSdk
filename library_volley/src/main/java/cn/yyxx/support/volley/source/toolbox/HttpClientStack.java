@@ -16,10 +16,6 @@
 
 package cn.yyxx.support.volley.source.toolbox;
 
-import cn.yyxx.support.volley.source.AuthFailureError;
-import cn.yyxx.support.volley.source.Request;
-import cn.yyxx.support.volley.source.Request.Method;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -44,6 +40,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import cn.yyxx.support.volley.source.AuthFailureError;
+import cn.yyxx.support.volley.source.Request;
+import cn.yyxx.support.volley.source.Request.Method;
+
 /**
  * An HttpStack that performs request over an {@link HttpClient}.
  *
@@ -52,15 +52,14 @@ import java.util.Map;
  */
 @Deprecated
 public class HttpClientStack implements HttpStack {
-    protected final HttpClient mClient;
-
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
+    protected final HttpClient mClient;
 
     public HttpClientStack(HttpClient client) {
         mClient = client;
     }
 
-    private static void setHeaders(HttpUriRequest httpRequest, Map<String, String> headers) {
+    private static void addHeaders(HttpUriRequest httpRequest, Map<String, String> headers) {
         for (String key : headers.keySet()) {
             httpRequest.setHeader(key, headers.get(key));
         }
@@ -68,29 +67,11 @@ public class HttpClientStack implements HttpStack {
 
     @SuppressWarnings("unused")
     private static List<NameValuePair> getPostParameterPairs(Map<String, String> postParams) {
-        List<NameValuePair> result = new ArrayList<>(postParams.size());
+        List<NameValuePair> result = new ArrayList<NameValuePair>(postParams.size());
         for (String key : postParams.keySet()) {
             result.add(new BasicNameValuePair(key, postParams.get(key)));
         }
         return result;
-    }
-
-    @Override
-    public HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders)
-            throws IOException, AuthFailureError {
-        HttpUriRequest httpRequest = createHttpRequest(request, additionalHeaders);
-        setHeaders(httpRequest, additionalHeaders);
-        // Request.getHeaders() takes precedence over the given additional (cache) headers) and any
-        // headers set by createHttpRequest (like the Content-Type header).
-        setHeaders(httpRequest, request.getHeaders());
-        onPrepareRequest(httpRequest);
-        HttpParams httpParams = httpRequest.getParams();
-        int timeoutMs = request.getTimeoutMs();
-        // TODO: Reevaluate this connection timeout based on more wide-scale
-        // data collection and possibly different for wifi vs. 3G.
-        HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
-        HttpConnectionParams.setSoTimeout(httpParams, timeoutMs);
-        return mClient.execute(httpRequest);
     }
 
     /**
@@ -160,6 +141,22 @@ public class HttpClientStack implements HttpStack {
             HttpEntity entity = new ByteArrayEntity(body);
             httpRequest.setEntity(entity);
         }
+    }
+
+    @Override
+    public HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders)
+            throws IOException, AuthFailureError {
+        HttpUriRequest httpRequest = createHttpRequest(request, additionalHeaders);
+        addHeaders(httpRequest, additionalHeaders);
+        addHeaders(httpRequest, request.getHeaders());
+        onPrepareRequest(httpRequest);
+        HttpParams httpParams = httpRequest.getParams();
+        int timeoutMs = request.getTimeoutMs();
+        // TODO: Reevaluate this connection timeout based on more wide-scale
+        // data collection and possibly different for wifi vs. 3G.
+        HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
+        HttpConnectionParams.setSoTimeout(httpParams, timeoutMs);
+        return mClient.execute(httpRequest);
     }
 
     /**

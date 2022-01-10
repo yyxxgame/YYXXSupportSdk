@@ -18,14 +18,14 @@ package cn.yyxx.support.volley.source.toolbox;
 
 import android.os.SystemClock;
 
-import cn.yyxx.support.volley.source.Request;
-import cn.yyxx.support.volley.source.Response;
-import cn.yyxx.support.volley.source.VolleyError;
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import cn.yyxx.support.volley.source.Request;
+import cn.yyxx.support.volley.source.Response;
+import cn.yyxx.support.volley.source.VolleyError;
 
 /**
  * A Future that represents a Volley request.
@@ -60,11 +60,11 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>, Respon
     private T mResult;
     private VolleyError mException;
 
-    public static <E> RequestFuture<E> newFuture() {
-        return new RequestFuture<>();
+    private RequestFuture() {
     }
 
-    private RequestFuture() {
+    public static <E> RequestFuture<E> newFuture() {
+        return new RequestFuture<E>();
     }
 
     public void setRequest(Request<?> request) {
@@ -88,7 +88,7 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>, Respon
     @Override
     public T get() throws InterruptedException, ExecutionException {
         try {
-            return doGet(/* timeoutMs= */ null);
+            return doGet(null);
         } catch (TimeoutException e) {
             throw new AssertionError(e);
         }

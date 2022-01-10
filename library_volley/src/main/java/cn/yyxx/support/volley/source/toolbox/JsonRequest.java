@@ -16,8 +16,7 @@
 
 package cn.yyxx.support.volley.source.toolbox;
 
-import android.support.annotation.GuardedBy;
-import android.support.annotation.Nullable;
+import java.io.UnsupportedEncodingException;
 
 import cn.yyxx.support.volley.source.NetworkResponse;
 import cn.yyxx.support.volley.source.Request;
@@ -26,8 +25,6 @@ import cn.yyxx.support.volley.source.Response.ErrorListener;
 import cn.yyxx.support.volley.source.Response.Listener;
 import cn.yyxx.support.volley.source.VolleyLog;
 
-import java.io.UnsupportedEncodingException;
-
 /**
  * A request for retrieving a T type response body at a given URL that also optionally sends along a
  * JSON body in the request specified.
@@ -35,21 +32,24 @@ import java.io.UnsupportedEncodingException;
  * @param <T> JSON type of response expected
  */
 public abstract class JsonRequest<T> extends Request<T> {
-    /** Default charset for JSON request. */
+    /**
+     * Default charset for JSON request.
+     */
     protected static final String PROTOCOL_CHARSET = "utf-8";
 
-    /** Content type for request. */
+    /**
+     * Content type for request.
+     */
     private static final String PROTOCOL_CONTENT_TYPE =
             String.format("application/json; charset=%s", PROTOCOL_CHARSET);
 
-    /** Lock to guard mListener as it is cleared on cancel() and read on delivery. */
+    /**
+     * Lock to guard mListener as it is cleared on cancel() and read on delivery.
+     */
     private final Object mLock = new Object();
-
-    @Nullable
-    @GuardedBy("mLock")
+    private final String mRequestBody;
+    // @GuardedBy("mLock")
     private Listener<T> mListener;
-
-    @Nullable private final String mRequestBody;
 
     /**
      * Deprecated constructor for a JsonRequest which defaults to GET unless {@link #getPostBody()}
@@ -66,9 +66,9 @@ public abstract class JsonRequest<T> extends Request<T> {
     public JsonRequest(
             int method,
             String url,
-            @Nullable String requestBody,
+            String requestBody,
             Listener<T> listener,
-            @Nullable ErrorListener errorListener) {
+            ErrorListener errorListener) {
         super(method, url, errorListener);
         mListener = listener;
         mRequestBody = requestBody;
@@ -96,14 +96,18 @@ public abstract class JsonRequest<T> extends Request<T> {
     @Override
     protected abstract Response<T> parseNetworkResponse(NetworkResponse response);
 
-    /** @deprecated Use {@link #getBodyContentType()}. */
+    /**
+     * @deprecated Use {@link #getBodyContentType()}.
+     */
     @Deprecated
     @Override
     public String getPostBodyContentType() {
         return getBodyContentType();
     }
 
-    /** @deprecated Use {@link #getBody()}. */
+    /**
+     * @deprecated Use {@link #getBody()}.
+     */
     @Deprecated
     @Override
     public byte[] getPostBody() {

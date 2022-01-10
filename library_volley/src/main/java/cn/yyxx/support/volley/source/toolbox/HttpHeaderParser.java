@@ -16,11 +16,6 @@
 
 package cn.yyxx.support.volley.source.toolbox;
 
-import cn.yyxx.support.volley.source.Cache;
-import cn.yyxx.support.volley.source.Header;
-import cn.yyxx.support.volley.source.NetworkResponse;
-import cn.yyxx.support.volley.source.VolleyLog;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,6 +25,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.TreeMap;
+
+import cn.yyxx.support.volley.source.Cache;
+import cn.yyxx.support.volley.source.Header;
+import cn.yyxx.support.volley.source.NetworkResponse;
+import cn.yyxx.support.volley.source.VolleyLog;
 
 /**
  * Utility methods for parsing HTTP headers.

@@ -16,15 +16,7 @@
 
 package cn.yyxx.support.volley.source.toolbox;
 
-import android.support.annotation.VisibleForTesting;
-
-import cn.yyxx.support.volley.source.AuthFailureError;
-import cn.yyxx.support.volley.source.Header;
-import cn.yyxx.support.volley.source.Request;
-import cn.yyxx.support.volley.source.Request.Method;
-
 import java.io.DataOutputStream;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -37,36 +29,28 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
 
+import cn.yyxx.support.volley.source.AuthFailureError;
+import cn.yyxx.support.volley.source.Header;
+import cn.yyxx.support.volley.source.Request;
+import cn.yyxx.support.volley.source.Request.Method;
+
 /**
- * A {@link BaseHttpStack} based on {@link HttpURLConnection}.
+ * An {@link HttpStack} based on {@link HttpURLConnection}.
  */
 public class HurlStack extends BaseHttpStack {
 
     private static final int HTTP_CONTINUE = 100;
-
-    /**
-     * An interface for transforming URLs before use.
-     */
-    public interface UrlRewriter {
-        /**
-         * Returns a URL to use instead of the provided one, or null to indicate this URL should not
-         * be used at all.
-         */
-        String rewriteUrl(String originalUrl);
-    }
-
     private final UrlRewriter mUrlRewriter;
     private final SSLSocketFactory mSslSocketFactory;
-
     public HurlStack() {
-        this(/* urlRewriter = */ null);
+        this(null);
     }
 
     /**
      * @param urlRewriter Rewriter to use for request URLs
      */
     public HurlStack(UrlRewriter urlRewriter) {
-        this(urlRewriter, /* sslSocketFactory = */ null);
+        this(urlRewriter, null);
     }
 
     /**
@@ -78,57 +62,7 @@ public class HurlStack extends BaseHttpStack {
         mSslSocketFactory = sslSocketFactory;
     }
 
-    @Override
-    public HttpResponse executeRequest(Request<?> request, Map<String, String> additionalHeaders)
-            throws IOException, AuthFailureError {
-        String url = request.getUrl();
-        HashMap<String, String> map = new HashMap<>();
-        map.putAll(additionalHeaders);
-        // Request.getHeaders() takes precedence over the given additional (cache) headers).
-        map.putAll(request.getHeaders());
-        if (mUrlRewriter != null) {
-            String rewritten = mUrlRewriter.rewriteUrl(url);
-            if (rewritten == null) {
-                throw new IOException("URL blocked by rewriter: " + url);
-            }
-            url = rewritten;
-        }
-        URL parsedUrl = new URL(url);
-        HttpURLConnection connection = openConnection(parsedUrl, request);
-        boolean keepConnectionOpen = false;
-        try {
-            for (String headerName : map.keySet()) {
-                connection.setRequestProperty(headerName, map.get(headerName));
-            }
-            setConnectionParametersForRequest(connection, request);
-            // Initialize HttpResponse with data from the HttpURLConnection.
-            int responseCode = connection.getResponseCode();
-            if (responseCode == -1) {
-                // -1 is returned by getResponseCode() if the response code could not be retrieved.
-                // Signal to the caller that something was wrong with the connection.
-                throw new IOException("Could not retrieve response code from HttpUrlConnection.");
-            }
-
-            if (!hasResponseBody(request.getMethod(), responseCode)) {
-                return new HttpResponse(responseCode, convertHeaders(connection.getHeaderFields()));
-            }
-
-            // Need to keep the connection open until the stream is consumed by the caller. Wrap the
-            // stream such that close() will disconnect the connection.
-            keepConnectionOpen = true;
-            return new HttpResponse(
-                    responseCode,
-                    convertHeaders(connection.getHeaderFields()),
-                    connection.getContentLength(),
-                    new UrlConnectionInputStream(connection));
-        } finally {
-            if (!keepConnectionOpen) {
-                connection.disconnect();
-            }
-        }
-    }
-
-    @VisibleForTesting
+    // VisibleForTesting
     static List<Header> convertHeaders(Map<String, List<String>> responseHeaders) {
         List<Header> headerList = new ArrayList<>(responseHeaders.size());
         for (Map.Entry<String, List<String>> entry : responseHeaders.entrySet()) {
@@ -159,25 +93,6 @@ public class HurlStack extends BaseHttpStack {
     }
 
     /**
-     * Wrapper for a {@link HttpURLConnection}'s InputStream which disconnects the connection on
-     * stream close.
-     */
-    static class UrlConnectionInputStream extends FilterInputStream {
-        private final HttpURLConnection mConnection;
-
-        UrlConnectionInputStream(HttpURLConnection connection) {
-            super(inputStreamFromConnection(connection));
-            mConnection = connection;
-        }
-
-        @Override
-        public void close() throws IOException {
-            super.close();
-            mConnection.disconnect();
-        }
-    }
-
-    /**
      * Initializes an {@link InputStream} from the given {@link HttpURLConnection}.
      *
      * @param connection
@@ -193,46 +108,6 @@ public class HurlStack extends BaseHttpStack {
         return inputStream;
     }
 
-    /**
-     * Create an {@link HttpURLConnection} for the specified {@code url}.
-     */
-    protected HttpURLConnection createConnection(URL url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        // Workaround for the M release HttpURLConnection not observing the
-        // HttpURLConnection.setFollowRedirects() property.
-        // https://code.google.com/p/android/issues/detail?id=194495
-        connection.setInstanceFollowRedirects(HttpURLConnection.getFollowRedirects());
-
-        return connection;
-    }
-
-    /**
-     * Opens an {@link HttpURLConnection} with parameters.
-     *
-     * @param url
-     * @return an open connection
-     * @throws IOException
-     */
-    private HttpURLConnection openConnection(URL url, Request<?> request) throws IOException {
-        HttpURLConnection connection = createConnection(url);
-
-        int timeoutMs = request.getTimeoutMs();
-        connection.setConnectTimeout(timeoutMs);
-        connection.setReadTimeout(timeoutMs);
-        connection.setUseCaches(false);
-        connection.setDoInput(true);
-
-        // use caller-provided custom SslSocketFactory, if any, for HTTPS
-        if ("https".equals(url.getProtocol()) && mSslSocketFactory != null) {
-            ((HttpsURLConnection) connection).setSSLSocketFactory(mSslSocketFactory);
-        }
-
-        return connection;
-    }
-
-    // NOTE: Any request headers added here (via setRequestProperty or addRequestProperty) should be
-    // checked against the existing properties in the connection and not overridden if already set.
     @SuppressWarnings("deprecation")
     /* package */ static void setConnectionParametersForRequest(
             HttpURLConnection connection, Request<?> request) throws IOException, AuthFailureError {
@@ -290,18 +165,103 @@ public class HurlStack extends BaseHttpStack {
     }
 
     private static void addBody(HttpURLConnection connection, Request<?> request, byte[] body)
-            throws IOException {
+            throws IOException, AuthFailureError {
         // Prepare output. There is no need to set Content-Length explicitly,
         // since this is handled by HttpURLConnection using the size of the prepared
         // output stream.
         connection.setDoOutput(true);
-        // Set the content-type unless it was already set (by Request#getHeaders).
-        if (!connection.getRequestProperties().containsKey(HttpHeaderParser.HEADER_CONTENT_TYPE)) {
-            connection.setRequestProperty(
-                    HttpHeaderParser.HEADER_CONTENT_TYPE, request.getBodyContentType());
-        }
+        connection.addRequestProperty(
+                HttpHeaderParser.HEADER_CONTENT_TYPE, request.getBodyContentType());
         DataOutputStream out = new DataOutputStream(connection.getOutputStream());
         out.write(body);
         out.close();
+    }
+
+    @Override
+    public HttpResponse executeRequest(Request<?> request, Map<String, String> additionalHeaders)
+            throws IOException, AuthFailureError {
+        String url = request.getUrl();
+        HashMap<String, String> map = new HashMap<>();
+        map.putAll(request.getHeaders());
+        map.putAll(additionalHeaders);
+        if (mUrlRewriter != null) {
+            String rewritten = mUrlRewriter.rewriteUrl(url);
+            if (rewritten == null) {
+                throw new IOException("URL blocked by rewriter: " + url);
+            }
+            url = rewritten;
+        }
+        URL parsedUrl = new URL(url);
+        HttpURLConnection connection = openConnection(parsedUrl, request);
+        for (String headerName : map.keySet()) {
+            connection.addRequestProperty(headerName, map.get(headerName));
+        }
+        setConnectionParametersForRequest(connection, request);
+        // Initialize HttpResponse with data from the HttpURLConnection.
+        int responseCode = connection.getResponseCode();
+        if (responseCode == -1) {
+            // -1 is returned by getResponseCode() if the response code could not be retrieved.
+            // Signal to the caller that something was wrong with the connection.
+            throw new IOException("Could not retrieve response code from HttpUrlConnection.");
+        }
+
+        if (!hasResponseBody(request.getMethod(), responseCode)) {
+            return new HttpResponse(responseCode, convertHeaders(connection.getHeaderFields()));
+        }
+
+        return new HttpResponse(
+                responseCode,
+                convertHeaders(connection.getHeaderFields()),
+                connection.getContentLength(),
+                inputStreamFromConnection(connection));
+    }
+
+    /**
+     * Create an {@link HttpURLConnection} for the specified {@code url}.
+     */
+    protected HttpURLConnection createConnection(URL url) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+        // Workaround for the M release HttpURLConnection not observing the
+        // HttpURLConnection.setFollowRedirects() property.
+        // https://code.google.com/p/android/issues/detail?id=194495
+        connection.setInstanceFollowRedirects(HttpURLConnection.getFollowRedirects());
+
+        return connection;
+    }
+
+    /**
+     * Opens an {@link HttpURLConnection} with parameters.
+     *
+     * @param url
+     * @return an open connection
+     * @throws IOException
+     */
+    private HttpURLConnection openConnection(URL url, Request<?> request) throws IOException {
+        HttpURLConnection connection = createConnection(url);
+
+        int timeoutMs = request.getTimeoutMs();
+        connection.setConnectTimeout(timeoutMs);
+        connection.setReadTimeout(timeoutMs);
+        connection.setUseCaches(false);
+        connection.setDoInput(true);
+
+        // use caller-provided custom SslSocketFactory, if any, for HTTPS
+        if ("https".equals(url.getProtocol()) && mSslSocketFactory != null) {
+            ((HttpsURLConnection) connection).setSSLSocketFactory(mSslSocketFactory);
+        }
+
+        return connection;
+    }
+
+    /**
+     * An interface for transforming URLs before use.
+     */
+    public interface UrlRewriter {
+        /**
+         * Returns a URL to use instead of the provided one, or null to indicate this URL should not
+         * be used at all.
+         */
+        String rewriteUrl(String originalUrl);
     }
 }
