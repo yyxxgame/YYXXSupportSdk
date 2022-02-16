@@ -5,7 +5,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.support.v4.app.FragmentActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +22,8 @@ public final class PermissionKit {
      * 权限设置页跳转请求码
      */
     public static final int REQUEST_CODE = 1024 + 1;
+
+    public static boolean enablePermissionDialog = true;
 
     /**
      * 权限请求拦截器

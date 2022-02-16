@@ -2,11 +2,10 @@ package cn.yyxx.support;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.text.TextUtils;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -128,5 +127,11 @@ public class AppUtils {
             return false;
         }
         return true;
+    }
+
+
+    public static boolean isLandscape(Context context) {
+        int orientation = context.getResources().getConfiguration().orientation;
+        return orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 }

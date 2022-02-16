@@ -1,22 +1,5 @@
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        jcenter()
-        maven {
-            allowInsecureProtocol = true
-            url 'https://maven.aliyun.com/repository/public'
-        }
-        maven {
-            allowInsecureProtocol = true
-            url 'https://jitpack.io'
-        }
-    }
-}
 rootProject.name = 'YYXXSupportSdk'
 include ':demo'
 include ':library_support'
 include ':library_volleyx'
 include ':library_volley'
-

@@ -41,11 +41,23 @@
 -keepattributes *Annotation*
 -keepattributes *JavascriptInterface*
 
-# 保留内部类
--keepattributes Exceptions,InnerClasses
+# keep javascript注释的方法，使用到webview js回调方法的需要添加此配置
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
 
-# 保留泛型
--keepattributes Signature
+#  #保留内部接口或内部类、内部类、泛型签名类型
+-keepattributes Exceptions,InnerClasses,Signature
+
+# 将崩溃日志文件来源重命名为"SourceFile"
+-renamesourcefileattribute SourceFile
+# 产生有用的混淆堆栈跟踪
+-keepattributes SourceFile,LineNumberTable
+# 保留注释
+-keepattributes *Annotation*
+
+# 保留函数的参数名
+-keepparameternames
 
 -keepnames class * implements java.io.Serializable
 -keepclassmembers class * implements java.io.Serializable {
@@ -111,7 +123,19 @@
 
 -keep class **JNI* {*;}
 
--keep class android.support.annotation.**{*;}
+# 保留native方法
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+# keep R文件的静态字段
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+
+
+-keeppackagenames cn.yyxx.support.**
+
 -keep class cn.yyxx.support.AndroidBug5497Workaround{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.AppUtils{ public <fields>;public <methods>;}
 -keep class cn.yyxx.support.BeanUtils{ public <fields>;public <methods>;}
@@ -138,5 +162,7 @@
 -keep class cn.yyxx.support.permission.Permission$Group{ *;}
 -keep class cn.yyxx.support.permission.PermissionKitActivity{  public <fields>; public <methods>;}
 -keep class cn.yyxx.support.permission.IPermissionCallback{  public <fields>; public <methods>;}
+-keep class cn.yyxx.support.permission.IPermissionInterceptor{  public <fields>; public <methods>;}
+
 
 

@@ -9,8 +9,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.yyxx.support.hawkeye.LogUtils;
-
 /**
  * @author #Suyghur.
  * Created on 2021/10/31
@@ -31,7 +29,7 @@ public class BasePermissionInterceptor implements IPermissionInterceptor {
 
     @Override
     public void deniedPermissions(FragmentActivity activity, List<String> permissions, boolean never, IPermissionCallback callback) {
-        if (never) {
+        if (never && PermissionKit.enablePermissionDialog) {
             showPermissionDialog(activity, permissions);
             return;
         }
