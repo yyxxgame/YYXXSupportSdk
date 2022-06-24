@@ -3,6 +3,7 @@ package cn.yyxx.support.ui;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -12,6 +13,8 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import java.util.logging.Logger;
+
 /**
  * @author #Suyghur.
  * Created on 2021/05/12
@@ -19,10 +22,10 @@ import android.widget.RelativeLayout;
 public class DragViewLayout extends FrameLayout {
 
     //view所在位置
-    private int mLastX, mLastY;
+    protected int mLastX, mLastY;
 
     //屏幕宽高
-    private int mScreenWidth, mScreenHeight;
+    protected int mScreenWidth, mScreenHeight;
 
     //view宽高
     protected int mWidth, mHeight;
@@ -31,17 +34,16 @@ public class DragViewLayout extends FrameLayout {
     protected boolean isDrag = false;
 
     //系统最新滑动距离
-    private int mTouchSlop = 0;
+    protected int mTouchSlop = 0;
 
-    private WindowManager.LayoutParams floatLayoutParams;
-    private WindowManager mWindowManager;
-
+    protected WindowManager.LayoutParams floatLayoutParams;
+    protected WindowManager mWindowManager;
 
     //手指触摸位置
-    private float xInScreen;
-    private float yInScreen;
-    private float xInView;
-    private float yInView;
+    protected float xInScreen;
+    protected float yInScreen;
+    protected float xInView;
+    protected float yInView;
 
     public DragViewLayout(Context context) {
         super(context);
